@@ -15,6 +15,8 @@
 import datetime
 import json
 
+from ed_helper_publisher.loggerly import ElasticDevLogger
+
 class DateTimeJsonEncoder(json.JSONEncoder):
 
     def default(self,obj):
@@ -31,3 +33,27 @@ def print_json(results):
 
 def nice_json(results):
     return json.dumps(results,sort_keys=True,cls=DateTimeJsonEncoder,indent=4)
+
+def convert_str2json(_object,exit_error=None):
+
+    if isinstance(_object,dict): return _object
+    if isinstance(_object,list): return _object
+    logger = ElasticDevLogger("convert_str2json")
+
+    try:
+        _object = json.loads(_object)
+        return _object
+    except:
+        logger.error("Cannot convert str to a json.  Will try to eval")
+
+    try:
+        _object = eval(_object)
+        return _object
+    except:
+        logger.error("Cannot eval str to a json.")
+
+        if exit_error: exit(13)
+        return False
+
+    return _object
+
