@@ -1,0 +1,16 @@
+Metadata-Version: 1.1
+Name: ed-helper-publisher
+Version: 0.100
+Summary: The helper package for publishing on elasticdev.io
+Home-page: http://github.com/elasticev/helper_publisher
+Author: Gary Leong
+Author-email: gary@elasticdev.io
+License: Copyright Jiffy, LLC 2019
+Description: The helper package for publishing on elasticdev.io
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 2
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development
+Classifier: Topic :: Utilities
+Classifier: Environment :: Console
+Classifier: Operating System :: OS Independent
