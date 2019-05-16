@@ -23,7 +23,7 @@ from ed_helper_publisher.loggerly import ElasticDevLogger
 def execute3(cmd,print_error=True,**kwargs):
 
     logger = ElasticDevLogger("execute3")
-    logger.debug("Running command %s" % cmd)
+    logger.debug("Running command %s from directory %s" % (cmd,os.getcwd()))
 
     output_queue = kwargs.get("output_queue")
     env_vars = kwargs.get("env_vars")
@@ -32,7 +32,7 @@ def execute3(cmd,print_error=True,**kwargs):
     if env_vars: 
         env_vars = env_vars.get()
         for ek,ev in env_vars.iteritems():
-            logger.debug("Setting environment varialbe {} to {}".format(ek,ev))
+            logger.debug("Setting environment variable {} to {}".format(ek,ev))
             os.environ[ek] = ev
 
     exit_error = kwargs.get("exit_error")
