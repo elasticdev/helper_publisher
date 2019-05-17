@@ -1,6 +1,7 @@
 setup.py
 ed_helper_publisher/__init__.py
 ed_helper_publisher/loggerly.py
+ed_helper_publisher/resource_manage.py
 ed_helper_publisher/shellouts.py
 ed_helper_publisher/utilities.py
 ed_helper_publisher.egg-info/PKG-INFO
@@ -8,3 +9,5 @@ ed_helper_publisher.egg-info/SOURCES.txt
 ed_helper_publisher.egg-info/dependency_links.txt
 ed_helper_publisher.egg-info/not-zip-safe
 ed_helper_publisher.egg-info/top_level.txt
+ed_helper_publisher/cloud/__init__.py
+ed_helper_publisher/cloud/awscli.py
