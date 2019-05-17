@@ -56,4 +56,3 @@ def convert_str2json(_object,exit_error=None):
         return False
 
     return _object
-
