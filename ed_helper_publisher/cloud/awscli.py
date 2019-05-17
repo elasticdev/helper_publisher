@@ -17,7 +17,7 @@ import os
 from ed_helper_publisher.loggerly import ElasticDevLogger
 from ed_helper_publisher.resource_manage import ResourceCmdHelper
 
-class AwsCli(object):
+class AwsCli(ResourceCmdHelper):
 
     def __init__(self,**kwargs):
 
