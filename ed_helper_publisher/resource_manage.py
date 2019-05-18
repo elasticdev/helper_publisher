@@ -59,7 +59,6 @@ class ResourceCmdHelper(object):
             failed_message = "No failed message to outputted"
 
         self.logger.error(message=failed_message)
-        print failed_message
         exit(9)
 
     def set_inputargs(self,**kwargs):
