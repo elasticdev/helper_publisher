@@ -94,7 +94,7 @@ class ResourceCmdHelper(object):
         self.logger.aggmsg("These keys need to be set:",new=True)
         self.logger.aggmsg("")
 
-        for key in kwargs["keys"]:
+        for key in required_keys:
             self.logger.aggmsg("\t{} or Environmental Variable {}".format(key,key.upper()))
 
         failed_message = self.logger.aggmsg("")
