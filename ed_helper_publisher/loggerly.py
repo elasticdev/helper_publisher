@@ -36,7 +36,7 @@ class ElasticDevLogger(object):
         else:
             self.aggregate_msg = "\n{}".format(message)
 
-        if not prt: self.aggregate_msg
+        if not prt: return self.aggregate_msg
 
         msg = self.aggregate_msg
         self.print_aggmsg(cmethod)
