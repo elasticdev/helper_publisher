@@ -39,6 +39,9 @@ class AwsCli(ResourceCmdHelper):
             else:
                 self.inputargs[env_var] = os.environ[env_var.upper()]
 
+    def get_cmd_region(self,cmd):
+        return "{} --region {}".format(self.region)
+
     def get_region(self):
 
         self.region = self.inputargs.get("region")
