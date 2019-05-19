@@ -14,6 +14,8 @@
 
 import datetime
 import json
+import os
+import hashlib
 
 from ed_helper_publisher.loggerly import ElasticDevLogger
 
@@ -56,3 +58,31 @@ def convert_str2json(_object,exit_error=None):
         return False
 
     return _object
+
+def shellout_hash(string):
+
+    try:
+        cmd = os.popen('echo "%s" | md5sum | cut -d " " -f 1' % string, "r")
+        ret = cmd.read().rstrip()
+    except: 
+        print "Failed to calculate the md5sum of a string %s" % string
+        return False
+    return ret
+
+def get_hash(data):
+
+    '''determines the hash of a data object'''
+
+    logger = ElasticDevLogger("get_hash")
+
+    try:
+        calculated_hash = hashlib.md5(data).hexdigest()
+    except:
+        logger.warn("Falling back to shellout md5sum for hash")
+        calculated_hash = shellout_hash(data)
+
+    if not calculated_hash:
+        logger.error("Could not calculate hash for %s" % data)
+        return False
+
+    return calculated_hash

@@ -17,6 +17,7 @@ import os
 from ed_helper_publisher.loggerly import ElasticDevLogger
 from ed_helper_publisher.utilities import print_json
 from ed_helper_publisher.utilities import convert_str2json
+from ed_helper_publisher.utilities import get_hash
 from ed_helper_publisher.shellouts import execute3
 
 class ResourceCmdHelper(object):
@@ -26,6 +27,9 @@ class ResourceCmdHelper(object):
         self.classname = 'ResourceCmdHelper'
         self.logger = ElasticDevLogger(self.classname)
         self.logger.debug("Instantiating %s" % self.classname)
+
+    def get_hash(self,_object):
+        return get_hash(_object)
 
     def _print_output(self,**kwargs):
 
