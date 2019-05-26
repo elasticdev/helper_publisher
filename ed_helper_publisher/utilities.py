@@ -12,6 +12,8 @@
 #Proprietary and confidential
 #Written by Gary Leong  <gary@elasticdev.io, May 11,2019
 
+import string
+import random
 import datetime
 import json
 import os
@@ -86,3 +88,30 @@ def get_hash(data):
         return False
 
     return calculated_hash
+
+def id_generator(size=6,chars=string.ascii_uppercase+string.digits):
+
+    '''generates id randomly'''
+
+    return ''.join(random.choice(chars) for x in range(size))
+
+def get_dict_frm_file(file_path):
+
+    '''
+    looks at the file_path in the format
+    key=value
+
+    and parses it and returns a dictionary
+    '''
+
+    sparams = {}
+
+    rfile = open(file_path,"r")
+
+    non_blank_lines = (line.strip() for line in rfile.readlines() if line.strip())
+
+    for bline in non_blank_lines:
+        key,value = bline.split("=")
+        sparams[key] = value
+
+    return sparams
