@@ -13,8 +13,10 @@
 #Written by Gary Leong  <gary@elasticdev.io, May 11,2019
 
 import os
+import json
 
 from ed_helper_publisher.loggerly import ElasticDevLogger
+from ed_helper_publisher.utilities import OnDiskTmpDir
 from ed_helper_publisher.resource_manage import ResourceCmdHelper
 
 class AwsCli(ResourceCmdHelper):
@@ -25,6 +27,17 @@ class AwsCli(ResourceCmdHelper):
         self.classname = 'AwsCli'
         self.logger = ElasticDevLogger(self.classname)
         self.logger.debug("Instantiating %s" % self.classname)
+        self.file_config = None
+        self.file_config_loc = None
+        self.tempdir = None
+
+    def set_ondisktmp(self):
+        self.tempdir = OnDiskTmpDir()
+
+    def write_file_config(self):
+
+        with open(self.file_config_loc, 'w') as _file:
+            _file.write(json.dumps(self.file_config,indent=4))
 
     def parse_set_env_vars(self,set_env_vars):
 

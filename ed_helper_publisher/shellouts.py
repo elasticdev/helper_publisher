@@ -20,6 +20,44 @@ from subprocess import PIPE
 from subprocess import STDOUT 
 from ed_helper_publisher.loggerly import ElasticDevLogger   
 
+def mkdir(directory):
+    '''uses the shell to make a directory.'''
+
+    try:
+        if not os.path.exists(directory):
+            os.system("mkdir -p %s" % (directory))
+        return True
+    except:
+        return False
+
+def chkdir(directory):
+
+    if not os.path.exists(directory):
+        print "Directory {} does not exists".format(directory)
+        return False
+    return True
+
+def rm_rf(location):
+
+    '''uses the shell to forcefully and recursively remove a file/entire directory.'''
+
+    if not location: return False
+
+    try:
+        os.remove(location)
+        status = True
+    except:
+        status = False
+
+    if status is False and os.path.exists(location):
+        try:
+            os.system("rm -rf %s > /dev/null 2>&1" % (location))
+            return True
+        except:
+            print "problems with removing %s" % location
+            return False
+
+
 def execute3(cmd,print_error=True,**kwargs):
 
     logger = ElasticDevLogger("execute3")

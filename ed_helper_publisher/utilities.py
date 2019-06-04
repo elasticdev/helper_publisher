@@ -20,6 +20,8 @@ import os
 import hashlib
 
 from ed_helper_publisher.loggerly import ElasticDevLogger
+from ed_helper_publisher.shellouts import mkdir
+from ed_helper_publisher.shellouts import rm_rf
 
 class DateTimeJsonEncoder(json.JSONEncoder):
 
@@ -115,3 +117,73 @@ def get_dict_frm_file(file_path):
         sparams[key] = value
 
     return sparams
+
+class OnDiskTmpDir(object):
+
+    def __init__(self,**kwargs):
+
+        self.tmpdir = kwargs.get("tmpdir")
+        if not self.tmpdir: self.tmpdir = "/tmp"
+
+        self.subdir = kwargs.get("subdir","ondisktmp")
+
+        if self.subdir:
+            self.basedir = "{}/{}".format(self.tmpdir,self.subdir)
+        else:
+            self.basedir = self.tmpdir
+
+        self.classname = "OnDiskTmpDir"
+
+        mkdir("/tmp/ondisktmpdir/log")
+
+        self.logger = ElasticDevLogger(self.classname)
+        if kwargs.get("init",True): self.set_dir(**kwargs)
+
+    def set_dir(self,**kwargs):
+
+        createdir = kwargs.get("createdir",True)
+
+        self.fqn_dir,self.dir = generate_random_path(self.basedir,
+                                                     folder_depth=1,
+                                                     folder_length=16,
+                                                     createdir=createdir,
+                                                     string_only=True)
+
+        return self.fqn_dir
+
+    def get(self,**kwargs):
+
+        if not self.fqn_dir:
+            msg = "fqn_dir has not be set"
+            raise Exception(msg)
+
+        self.logger.debug('Returning fqn_dir "{}"'.format(self.fqn_dir))
+
+        return self.fqn_dir
+
+    def delete(self,**kwargs):
+
+        self.logger.debug('Deleting fqn_dir "{}"'.format(self.fqn_dir))
+
+        return rm_rf(self.fqn_dir)
+
+def generate_random_path(basedir,folder_depth=1,folder_length=16,createdir=False,string_only=None):
+
+    '''
+    returns random folder path with specified parameters
+    '''
+
+    current_dir = basedir
+
+    for _ in range(folder_depth):
+
+        if string_only:
+            random_dir = id_generator(folder_length,chars=string.ascii_lowercase)
+        else:
+            random_dir = id_generator(folder_length)
+
+        current_dir = current_dir+"/"+random_dir
+
+    if createdir: mkdir(current_dir)
+
+    return current_dir,random_dir
