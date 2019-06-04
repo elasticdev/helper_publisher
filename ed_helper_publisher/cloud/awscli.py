@@ -39,15 +39,6 @@ class AwsCli(ResourceCmdHelper):
         with open(self.file_config_loc, 'w') as _file:
             _file.write(json.dumps(self.file_config,indent=4))
 
-        print 'yo'*32
-        print 'yo'*32
-        print 'yo'*32
-        print self.file_config
-        print 'yo1'*32
-        print 'yo1'*32
-        print 'yo1'*32
-        print self.file_config_loc
-
     def parse_set_env_vars(self,set_env_vars):
 
         self.inputargs = {}
