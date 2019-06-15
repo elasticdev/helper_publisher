@@ -47,7 +47,7 @@ class AwsCli(ResourceCmdHelper):
 
             if not os.environ.get(env_var.upper()): continue
 
-            if env_var == "aws_region":
+            if env_var == "aws_default_region":
                 self.inputargs["region"] = os.environ[env_var.upper()]
             else:
                 self.inputargs[env_var] = os.environ[env_var.upper()]
