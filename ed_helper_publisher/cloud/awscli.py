@@ -48,18 +48,18 @@ class AwsCli(ResourceCmdHelper):
             if not os.environ.get(env_var.upper()): continue
 
             if env_var == "aws_default_region":
-                self.inputargs["region"] = os.environ[env_var.upper()]
+                self.inputargs["aws_default_region"] = os.environ[env_var.upper()]
             else:
                 self.inputargs[env_var] = os.environ[env_var.upper()]
 
     def get_cmd_region(self,cmd):
-        return "{} --region {}".format(cmd,self.region)
+        return "{} --region {}".format(cmd,self.aws_default_region)
 
     def get_region(self):
 
-        self.region = self.inputargs.get("region")
+        self.aws_default_region = self.inputargs.get("aws_default_region")
 
-        if not self.region or self.region == "None": 
-            self.region = "us-east-1"
+        if not self.aws_default_region or self.aws_default_region == "None": 
+            self.aws_default_region = "us-east-1"
 
-        self.logger.debug('Region set to "{}"'.format(self.region))
+        self.logger.debug('Region set to "{}"'.format(self.aws_default_region))
