@@ -65,10 +65,10 @@ def execute3(cmd,print_error=True,**kwargs):
 
     output_queue = kwargs.get("output_queue")
     env_vars = kwargs.get("env_vars")
-    print = kwargs.get("output_to_json")
-    print = kwargs.get("output_to_json")
-    print = kwargs.get("output_to_json")
-    print = kwargs.get("output_to_json")
+    print kwargs.get("output_to_json")
+    print kwargs.get("output_to_json")
+    print kwargs.get("output_to_json")
+    print kwargs.get("output_to_json")
     raise
     output_to_json = kwargs.get("output_to_json",True)
 
