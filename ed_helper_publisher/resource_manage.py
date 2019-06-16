@@ -58,7 +58,9 @@ class ResourceCmdHelper(object):
 
     def execute(self,cmd,**kwargs):
         output_to_json = kwargs.get("output_to_json",True)
-        print output_to_json
+        if output_to_json is False:
+            print 'hello'*32
+            raise
         print output_to_json
         raise
         return execute3(cmd,**kwargs)
