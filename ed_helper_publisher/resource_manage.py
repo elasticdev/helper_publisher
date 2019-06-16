@@ -52,8 +52,17 @@ class ResourceCmdHelper(object):
         print '_ed_end_output'
 
     def successful_output(self,**kwargs):
+        simple_output = kwargs.get("simple_output",True)
 
-        self._print_output(**kwargs)
+        if simple_output:
+            output = kwargs.get("output")
+            if not output: exit(0)
+            print '_ed_begin_output'
+            print output
+            print '_ed_end_output'
+        else:
+            self._print_output(**kwargs)
+            
         exit(0)
 
     def execute(self,cmd,**kwargs):
