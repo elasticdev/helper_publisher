@@ -98,7 +98,13 @@ def execute3(cmd,print_error=True,**kwargs):
         try:
             output = json.loads(output)
         except:
-            logger.warn("Could not convert output to json")
+            print "what's up"
+            print "what's up"
+            print "what's up"
+            print "what's up"
+            print "what's up"
+            raise
+            #logger.warn("Could not convert output to json")
 
     results = {"status":True}
     results["output"] = output
