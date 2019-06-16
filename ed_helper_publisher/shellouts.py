@@ -92,6 +92,8 @@ def execute3(cmd,print_error=True,**kwargs):
         return results
 
     if output_to_json:
+        print 'yo'*32
+        raise
         try:
             output = json.loads(output)
         except:
