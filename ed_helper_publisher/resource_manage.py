@@ -58,9 +58,7 @@ class ResourceCmdHelper(object):
             output = kwargs.get("output")
             if not output: exit(0)
             print '_ed_begin_output'
-            print 'aaa'
             print output
-            print 'bbb'
             print '_ed_end_output'
         else:
             self._print_output(**kwargs)
