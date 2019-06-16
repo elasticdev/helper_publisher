@@ -57,6 +57,10 @@ class ResourceCmdHelper(object):
         exit(0)
 
     def execute(self,cmd,**kwargs):
+        output_to_json = kwargs.get("output_to_json",True)
+        print output_to_json
+        print output_to_json
+        raise
         return execute3(cmd,**kwargs)
 
     def cmd_failed(self,**kwargs):
