@@ -33,15 +33,18 @@ class ResourceCmdHelper(object):
 
     def _print_output(self,**kwargs):
 
+        output_to_json = kwargs.get("output_to_json",True)
         output = kwargs.get("output")
         if not output: output = "There is no output from the command"
 
         print ''
         print ''
-        try:
-            print_json(output)
-        except:
-            print output
+        
+        if output_to_json:
+            try:
+                print_json(output)
+            except:
+                print output
         print ''
         print ''
         print '_ed_begin_output'
@@ -49,6 +52,7 @@ class ResourceCmdHelper(object):
         print '_ed_end_output'
 
     def successful_output(self,**kwargs):
+
         self._print_output(**kwargs)
         exit(0)
 
