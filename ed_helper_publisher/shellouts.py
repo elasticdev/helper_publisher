@@ -69,7 +69,6 @@ def execute3(cmd,print_error=True,**kwargs):
     print kwargs.get("output_to_json")
     print kwargs.get("output_to_json")
     print kwargs.get("output_to_json")
-    raise
     output_to_json = kwargs.get("output_to_json",True)
 
     if env_vars: 
