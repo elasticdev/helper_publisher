@@ -52,7 +52,7 @@ class ResourceCmdHelper(object):
         print '_ed_end_output'
 
     def successful_output(self,**kwargs):
-        simple_output = kwargs.get("simple_output",True)
+        simple_output = kwargs.get("simple_output")
 
         if simple_output:
             output = kwargs.get("output")
