@@ -78,6 +78,10 @@ class ResourceCmdHelper(object):
         elif kwargs.get("set_env_vars"):
             self.parse_set_env_vars(kwargs["set_env_vars"])
 
+        for _k,_v in self.inputargs.iteritems():
+            if _v != "False": continue
+            self.inputargs[_k] = False
+
     # This can be replaced by the inheriting class
     def parse_set_env_vars(self,set_env_vars):
 
