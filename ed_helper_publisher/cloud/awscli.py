@@ -30,7 +30,22 @@ class AwsCli(ResourceCmdHelper):
         self.file_config = None
         self.file_config_loc = None
         self.tempdir = None
-        self.resource_tags_keys = [ "schedule_id", "job_instance_id","job_id" ]
+        self.resource_tags_keys = [ "tags", 
+                                    "schedule_id", 
+                                    "job_instance_id",
+                                    "job_id" ]
+
+    def get_tags(self):
+
+        tags = [ self.aws_default_region, 
+                 self.product, 
+                 self.provider ]
+
+        for key_eval in self.resource_tags_keys:
+            if not self.inputargs.get(key_eval): continue
+            tags.append(self.inputargs.get[key_eval])
+
+        return tags
 
     def set_ondisktmp(self):
         self.tempdir = OnDiskTmpDir()
