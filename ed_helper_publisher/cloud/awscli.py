@@ -30,6 +30,7 @@ class AwsCli(ResourceCmdHelper):
         self.file_config = None
         self.file_config_loc = None
         self.tempdir = None
+        self.resource_tags_keys = [ "schedule_id", "job_instance_id","job_id" ]
 
     def set_ondisktmp(self):
         self.tempdir = OnDiskTmpDir()
@@ -51,6 +52,21 @@ class AwsCli(ResourceCmdHelper):
                 self.inputargs["aws_default_region"] = os.environ[env_var.upper()]
             else:
                 self.inputargs[env_var] = os.environ[env_var.upper()]
+
+    def get_resource_tags(self,**kwargs):
+
+        name = kwargs.get("name")
+        if not name: name = self.inputargs.get("name")
+        
+        tags = "["
+        if name: tags = tags + "{"+"Key={},Value={}".format("Name",name)+"}"
+        
+        for key_eval in self.resource_tags_keys:
+            if not self.inputargs.get(key_eval): continue
+            tags = tags + ",{"+"Key={},Value={}".format(key_eval,self.inputargs[key_eval])+"}"
+        tags = tags + "]"
+
+        return tags
 
     def get_cmd_region(self,cmd):
         return "{} --region {}".format(cmd,self.aws_default_region)
