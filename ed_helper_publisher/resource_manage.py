@@ -85,6 +85,12 @@ class ResourceCmdHelper(object):
 
         for env_var in set_env_vars:
             if not os.environ.get(env_var.upper()): continue
+            if os.environ.get(env_var.upper()) == "None": continue
+
+            if os.environ.get(env_var.upper()) == "False": 
+                self.inputargs[env_var] = False
+                continue
+
             self.inputargs[env_var] = os.environ[env_var.upper()]
 
     def check_required_inputargs(self,**kwargs):
