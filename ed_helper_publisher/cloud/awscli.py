@@ -43,7 +43,7 @@ class AwsCli(ResourceCmdHelper):
 
         for key_eval in self.resource_tags_keys:
             if not self.inputargs.get(key_eval): continue
-            tags.append(self.inputargs.get[key_eval])
+            tags.append(self.inputargs[key_eval])
 
         return tags
 
