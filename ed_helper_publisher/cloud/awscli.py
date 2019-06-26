@@ -31,6 +31,7 @@ class AwsCli(ResourceCmdHelper):
         self.file_config_loc = None
         self.tempdir = None
         self.resource_tags_keys = [ "tags", 
+                                    "name", 
                                     "schedule_id", 
                                     "job_instance_id",
                                     "job_id" ]
