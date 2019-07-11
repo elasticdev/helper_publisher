@@ -67,10 +67,16 @@ def execute3(cmd,print_error=True,**kwargs):
     env_vars = kwargs.get("env_vars")
     output_to_json = kwargs.get("output_to_json",True)
 
-    if env_vars: 
+
+    if env_vars:
         env_vars = env_vars.get()
+
         for ek,ev in env_vars.iteritems():
-            logger.debug("Setting environment variable {} to {}".format(ek,ev))
+            if ev is None:
+                ev = "None"
+            elif not isinstance(ev,str) and not isinstance(ev,unicode):
+                ev = str(ev)
+            logger.debug("Setting environment variable {} to {}, type {}".format(ek,ev,type(ev)))
             os.environ[ek] = ev
 
     exit_error = kwargs.get("exit_error")
