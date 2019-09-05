@@ -40,6 +40,15 @@ def print_json(results):
 def nice_json(results):
     return json.dumps(results,sort_keys=True,cls=DateTimeJsonEncoder,indent=4)
 
+def convert_str2list(_object,split_char=None,exit_error=None):
+
+    if split_char:
+        entries = [ entry.strip() for entry in _object.split(split_char) ]
+    else:
+        entries = [ entry.strip() for entry in _object.split(" ") ]
+
+    return entries
+
 def convert_str2json(_object,exit_error=None):
 
     if isinstance(_object,dict): return _object
