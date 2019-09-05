@@ -12,3 +12,4 @@ ed_helper_publisher.egg-info/not-zip-safe
 ed_helper_publisher.egg-info/top_level.txt
 ed_helper_publisher/cloud/__init__.py
 ed_helper_publisher/cloud/awscli.py
+ed_helper_publisher/cloud/do.py
