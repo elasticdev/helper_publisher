@@ -67,7 +67,6 @@ def execute3(cmd,print_error=True,**kwargs):
     env_vars = kwargs.get("env_vars")
     output_to_json = kwargs.get("output_to_json",True)
 
-
     if env_vars:
         env_vars = env_vars.get()
 
@@ -107,6 +106,7 @@ def execute3(cmd,print_error=True,**kwargs):
     results["output"] = output
 
     if output_queue: 
+        logger.debug("Attempting to place results in the output_queue")
         try:
             output_queue.put(results)
         except:
