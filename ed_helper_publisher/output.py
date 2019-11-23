@@ -18,10 +18,15 @@ def convert_ed_output_to_values(output):
     print "Try to convert an object"
 
     obj_return = "\n".join(values)
-
-    try:
-        obj_return = convert_str2json(obj_return)
-    except:
-        print 'WARN: Cannot convert to json'
+    print ''
+    print ''
+    print values
+    print ''
+    print ''
+    obj_return = convert_str2json(obj_return)
+    #try:
+    #    obj_return = convert_str2json(obj_return)
+    #except:
+    #    print 'WARN: Cannot convert to json'
 
     return obj_return
