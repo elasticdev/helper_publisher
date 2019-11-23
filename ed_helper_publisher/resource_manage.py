@@ -31,6 +31,18 @@ class ResourceCmdHelper(object):
     def get_hash(self,_object):
         return get_hash(_object)
 
+    def print_output(self,**kwargs):
+
+        output = kwargs["output"]
+
+        if not isinstance(output,"dict"):
+            output = convert_str2json(output)
+
+        print '_ed_begin_output'
+        print output
+        print '_ed_end_output'
+        exit(0)
+
     def _print_output(self,**kwargs):
 
         output_to_json = kwargs.get("output_to_json",True)
