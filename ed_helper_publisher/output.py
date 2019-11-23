@@ -20,7 +20,7 @@ def convert_ed_output_to_values(output):
     obj_return = "\n".join(values)
     print ''
     print ''
-    print values
+    print obj_return
     print ''
     print ''
     obj_return = convert_str2json(obj_return)
