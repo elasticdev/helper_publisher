@@ -35,7 +35,7 @@ class ResourceCmdHelper(object):
 
         output = kwargs["output"]
 
-        if not isinstance(output,"dict"):
+        if not isinstance(output,dict):
             output = convert_str2json(output)
 
         print '_ed_begin_output'
