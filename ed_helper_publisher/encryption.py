@@ -43,7 +43,7 @@ class ObjSerialize(object):
         if not self.iv: 
             self.iv = Random.new().read(self._block_size)
 
-    def encrypt(self,_str,**kwargs):
+    def set(self,_str,**kwargs):
 
         atfork()
 
@@ -53,7 +53,7 @@ class ObjSerialize(object):
 
         return base64.b64encode(self.iv + aes.encrypt(_str.encode('ascii', 'ignore')))
 
-    def decrypt(self,encrypted,**kwargs):
+    def unset(self,encrypted,**kwargs):
 
         atfork()
         self._set_eparams(**kwargs)
@@ -103,26 +103,17 @@ class PermJWE(object):
     
         return False
 
-    def e_serialize(self,obj,passphrase="reoTiJuFc440173r",iv=None):
+    def _e_serialize(self,obj,passphrase="reoTiJuFc440173r",iv=None):
     
         if isinstance(obj,dict):
             _str = json.dumps(obj)
         else:
             _str = obj 
     
-        return self.obj_serialize.encrypt(_str,passphrase=str(passphrase),iv=iv)
-        #return ObjSerialize(passphrase=str(passphrase),iv=iv).encrypt(_str)
+        return self.obj_serialize.set(_str,passphrase=str(passphrase),iv=iv)
 
-    def create_symmetric_key(self):
-
-        symmetric_key = jwk.JWK(generate='oct',size=256).export()
-        results = {"key":symmetric_key}
-        results["str_key"] = self.e_serialize(symmetric_key)
-        
-        return results
-    
-    def de_serialize(self,encrypted,passphrase="reoTiJuFc440173r",convert2json=True):
-        _str = self.obj_serialize.decrypt(encrypted,passphrase=str(passphrase))
+    def _de_serialize(self,encrypted,passphrase="reoTiJuFc440173r",convert2json=True):
+        _str = self.obj_serialize.unset(encrypted,passphrase=str(passphrase))
         if not convert2json: return _str
         return self._byteify(json.loads(_str))
 
@@ -134,10 +125,10 @@ class PermJWE(object):
         if key and not isinstance(key,dict): 
             key = eval(key)
         elif str_key:
-            key = dict(self.de_serialize(str_key,convert2json=True))
+            key = dict(self._de_serialize(str_key,convert2json=True))
         else:
             print "using default symmetric key"
-            key = dict(self.de_serialize(self.str_key,convert2json=True))
+            key = dict(self._de_serialize(self.str_key,convert2json=True))
 
         return key
 
@@ -150,7 +141,7 @@ class PermJWE(object):
         if not secret: secret = self._get_md5sum(key)
         header = kwargs.get("header",{"alg": "A256KW", "enc": "A256CBC-HS512"})
 
-        emessage = self.e_serialize(values,passphrase=secret)
+        emessage = self._e_serialize(values,passphrase=secret)
 
         payload = {}
         payload["emessage"] = emessage
@@ -181,4 +172,4 @@ class PermJWE(object):
 
         emessage = eval(ST.claims)["emessage"]
 
-        return self.de_serialize(emessage,passphrase=secret,convert2json=True)
+        return self._de_serialize(emessage,passphrase=secret,convert2json=True)
