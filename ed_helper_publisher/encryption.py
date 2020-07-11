@@ -94,6 +94,7 @@ class ObjSerialize(object):
 
         print ''
         print ''
+        print self.passphrase
         print ''
         print ''
         print result
