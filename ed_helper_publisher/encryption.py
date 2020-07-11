@@ -72,38 +72,6 @@ class ObjSerialize(object):
         aes = AES.new(str(passphrase), AES.MODE_CFB, iv)
         return aes.decrypt(encrypted[self.BLOCK_SIZE:])
 
-def e_serialize(obj,passphrase="reoTiJuFc440173r",iv=None):
-
-    if isinstance(obj,dict):
-        _str = json.dumps(obj)
-    else:
-        _str = obj 
-
-    return ObjSerialize(passphrase=str(passphrase),iv=iv).encrypt(_str)
-
-def de_serialize(encrypted,passphrase="reoTiJuFc440173r",convert2json=True):
-    _str = ObjSerialize(passphrase=str(passphrase)).decrypt(encrypted)
-    if not convert2json: return _str
-    return byteify(json.loads(_str))
-
-def string_md5sum(hash_object):
-
-    '''determines the md5sum of a string through the use of the unix shell'''
-
-    try:
-        cmd = 'echo "%s" | md5sum | cut -d " " -f 1' % hash_object
-        process = Popen(cmd,shell=True,bufsize=0,stdout=PIPE,stderr=STDOUT)
-        out,error = process.communicate()
-        exitcode = process.returncode
-        ret = out.rstrip()
-        if exitcode != 0: raise
-        #cmd = os.popen(cmd, "r")
-        #ret = cmd.read().rstrip()
-    except:
-        print "Failed to calculate the md5sum of a string %s" % hash_object
-        return False
-    return ret
-
 class PermJWE(object):
 
     def __init__(self,**kwargs):
@@ -113,14 +81,46 @@ class PermJWE(object):
         self.str_key = "hKJpfMMKPUkv4LuLYrI/HqJ8k9OWthXH+UXhE25+K788Zg2NFVskn9sqIERvACAcIMMShCJwPqma63fhuPBqKDnRdKNRxOq+Y7NTcTYT8g=="
         self.classname = "PermJWE"
 
+    def _get_md5sum(self,hash_object):
+    
+        '''determines the md5sum of a string through the use of the unix shell'''
+    
+        cmd = 'echo "%s" | md5sum | cut -d " " -f 1' % hash_object
+    
+        try:
+            process = Popen(cmd,shell=True,bufsize=0,stdout=PIPE,stderr=STDOUT)
+            out,error = process.communicate()
+            exitcode = process.returncode
+            ret = out.rstrip()
+            if exitcode == 0: return ret
+            print "Failed to calculate the md5sum of a string %s" % hash_object
+        except:
+            print "Failed to calculate the md5sum of a string %s" % hash_object
+    
+        return False
+
+    def e_serialize(self,obj,passphrase="reoTiJuFc440173r",iv=None):
+    
+        if isinstance(obj,dict):
+            _str = json.dumps(obj)
+        else:
+            _str = obj 
+    
+        return ObjSerialize(passphrase=str(passphrase),iv=iv).encrypt(_str)
+
     def create_symmetric_key(self):
 
         symmetric_key = jwk.JWK(generate='oct',size=256).export()
         results = {"key":symmetric_key}
-        results["str_key"] = e_serialize(symmetric_key)
+        results["str_key"] = self.e_serialize(symmetric_key)
         
         return results
     
+    def de_serialize(self,encrypted,passphrase="reoTiJuFc440173r",convert2json=True):
+        _str = ObjSerialize(passphrase=str(passphrase)).decrypt(encrypted)
+        if not convert2json: return _str
+        return byteify(json.loads(_str))
+
     def _get_key(self,**kwargs):
 
         key = kwargs.get("key")
@@ -129,10 +129,10 @@ class PermJWE(object):
         if key and not isinstance(key,dict): 
             key = eval(key)
         elif str_key:
-            key = dict(de_serialize(str_key,convert2json=True))
+            key = dict(self.de_serialize(str_key,convert2json=True))
         else:
             print "using default symmetric key"
-            key = dict(de_serialize(self.str_key,convert2json=True))
+            key = dict(self.de_serialize(self.str_key,convert2json=True))
 
         return key
 
@@ -142,10 +142,10 @@ class PermJWE(object):
         key = self._get_key(**kwargs)
 
         secret = kwargs.get("secret")
-        if not secret: secret = string_md5sum(key)
+        if not secret: secret = self._get_md5sum(key)
         header = kwargs.get("header",{"alg": "A256KW", "enc": "A256CBC-HS512"})
 
-        emessage = e_serialize(values,passphrase=secret)
+        emessage = self.e_serialize(values,passphrase=secret)
 
         payload = {}
         payload["emessage"] = emessage
@@ -168,7 +168,7 @@ class PermJWE(object):
 
         etoken = kwargs["token"]
         key = self._get_key(**kwargs)
-        secret = kwargs.get("secret",string_md5sum(key))
+        secret = kwargs.get("secret",self._get_md5sum(key))
 
         key = jwk.JWK(**key)
         ET = jwt2.JWT(key=key,jwt=etoken)
@@ -176,4 +176,4 @@ class PermJWE(object):
 
         emessage = eval(ST.claims)["emessage"]
 
-        return de_serialize(emessage,passphrase=secret,convert2json=True)
+        return self.de_serialize(emessage,passphrase=secret,convert2json=True)
