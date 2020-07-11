@@ -89,7 +89,7 @@ class PermJWE(object):
 
         self.obj_serialize = ObjSerialize()
         self.algor = kwargs.get("algor","HS256")
-        self.str_key = "hKJpfMMKPUkv3LuLYrI/HqJ8k3OWthXH+UXhE25+K738Zg2NFVskn8sqIERvACAcIMMShCJwPqma83fhuPBqKDnRdKNRxOq+Y7NTcTYT9g=="
+        self._symmetric_key = "hKJpfMMKPUkv3LuLYrI/HqJ8k3OWthXH+UXhE25+K738Zg2NFVskn8sqIERvACAcIMMShCJwPqma83fhuPBqKDnRdKNRxOq+Y7NTcTYT9g=="
         self.classname = "PermJWE"
 
     def _get_md5sum(self,hash_object):
@@ -114,14 +114,11 @@ class PermJWE(object):
     def _get_key(self,**kwargs):
 
         key = kwargs.get("key")
-        str_key = kwargs.get("str_key")
         
         if key and not isinstance(key,dict): 
             key = eval(key)
-        elif str_key:
-            key = dict(self.obj_serialize.unset(str_key,convert2json=True))
         else:
-            key = dict(self.obj_serialize.unset(self.str_key,convert2json=True))
+            key = dict(self.obj_serialize.unset(self._symmetric_key,convert2json=True))
             print "using default symmetric key"
 
         return key
@@ -146,8 +143,7 @@ class PermJWE(object):
 
         emessage = self.obj_serialize.set(values,passphrase=secret)
 
-        payload = {}
-        payload["emessage"] = emessage
+        payload = {"emessage":emessage}
 
         _key = jwk.JWK(**key)
 
