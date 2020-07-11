@@ -159,11 +159,9 @@ class PermJWE(object):
 
         key = self._get_key(**kwargs)
 
-        secret = kwargs.get("secret")
-        if not secret: secret = self._get_md5sum(key)
         header = kwargs.get("header",{"alg": "A256KW", "enc": "A256CBC-HS512"})
 
-        emessage = self.obj_serialize.set(values,passphrase=secret)
+        emessage = self.obj_serialize.set(values)
 
         payload = {"emessage":emessage}
 
@@ -186,7 +184,6 @@ class PermJWE(object):
         filename = kwargs.get("filename")
         etoken = kwargs["token"]
         key = self._get_key(**kwargs)
-        secret = kwargs.get("secret",self._get_md5sum(key))
 
         key = jwk.JWK(**key)
         ET = jwt2.JWT(key=key,jwt=etoken)
@@ -194,7 +191,7 @@ class PermJWE(object):
 
         emessage = eval(ST.claims)["emessage"]
 
-        data = self.obj_serialize.unset(emessage,passphrase=secret,convert2json=True)
+        data = self.obj_serialize.unset(emessage,convert2json=True)
 
         if not filename: return data
 
