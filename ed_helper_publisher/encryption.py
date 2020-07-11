@@ -26,6 +26,17 @@ from subprocess import Popen
 from subprocess import PIPE
 from subprocess import STDOUT
 
+def byteify(input):
+    if isinstance(input, dict):
+        return {byteify(key): byteify(value)
+                for key, value in input.iteritems()}
+    elif isinstance(input, list):
+        return [byteify(element) for element in input]
+    elif isinstance(input, unicode):
+        return input.encode('utf-8')
+    else:
+        return input
+
 class ObjSerialize(object):
 
     def __init__(self):
@@ -91,7 +102,7 @@ class ObjSerialize(object):
         print ''
         print ''
 
-        return self._byteify(json.loads(result))
+        return byteify(json.loads(result))
 
 class PermJWE(object):
 
