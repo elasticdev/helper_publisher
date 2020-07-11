@@ -1,5 +1,7 @@
+README.md
 setup.py
 ed_helper_publisher/__init__.py
+ed_helper_publisher/encryption.py
 ed_helper_publisher/loggerly.py
 ed_helper_publisher/output.py
 ed_helper_publisher/resource_manage.py
