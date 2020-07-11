@@ -73,10 +73,10 @@ class PermJWE(object):
     def _byteify(self,input):
 
         if isinstance(input, dict):
-            return {self.byteify(key): self.byteify(value)
+            return {self._byteify(key): self._byteify(value)
                     for key, value in input.iteritems()}
         elif isinstance(input, list):
-            return [self.byteify(element) for element in input]
+            return [self._byteify(element) for element in input]
         elif isinstance(input, unicode):
             return input.encode('utf-8')
         else:
