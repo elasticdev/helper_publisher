@@ -71,18 +71,15 @@ class PermJWE(object):
         self.classname = "PermJWE"
 
     def _byteify(self,input):
-
         if isinstance(input, dict):
-            values = {self._byteify(key): self._byteify(value)
-                      for key, value in input.iteritems()}
+            return {self.byteify(key): self.byteify(value)
+                    for key, value in input.iteritems()}
         elif isinstance(input, list):
-            values = [self._byteify(element) for element in input]
+            return [self.byteify(element) for element in input]
         elif isinstance(input, unicode):
-            values = input.encode('utf-8')
+            return input.encode('utf-8')
         else:
-            values = input
-
-        return values
+            return input
 
     def _get_md5sum(self,hash_object):
     
