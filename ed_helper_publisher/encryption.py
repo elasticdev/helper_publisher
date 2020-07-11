@@ -37,15 +37,6 @@ def byteify(input):
     else:
         return input
 
-def wrapper_json_loads(obj):
-    _jloaded = json.loads(obj)
-    return byteify(_jloaded)
-    #return safe_load(_jloaded)
-
-def wrapper_json_load(obj):
-    _jloaded = json.load(obj)
-    return byteify(_jloaded)
-
 class ObjSerialize(object):
 
     def __init__(self,passphrase=None,iv=None):
@@ -93,7 +84,7 @@ def e_serialize(obj,passphrase="reoTiJuFc440173r",iv=None):
 def de_serialize(encrypted,passphrase="reoTiJuFc440173r",convert2json=True):
     _str = ObjSerialize(passphrase=str(passphrase)).decrypt(encrypted)
     if not convert2json: return _str
-    return wrapper_json_loads(_str)
+    return byteify(json.loads(_str))
 
 def string_md5sum(hash_object):
 
