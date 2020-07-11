@@ -113,8 +113,10 @@ class PermJWE(object):
         return self.obj_serialize.set(_str,passphrase=str(passphrase),iv=iv)
 
     def _de_serialize(self,encrypted,passphrase="reoTiJuFc440173r",convert2json=True):
+
         _str = self.obj_serialize.unset(encrypted,passphrase=str(passphrase))
         if not convert2json: return _str
+
         return self._byteify(json.loads(_str))
 
     def _get_key(self,**kwargs):
@@ -166,9 +168,9 @@ class PermJWE(object):
         key = self._get_key(**kwargs)
         secret = kwargs.get("secret",self._get_md5sum(key))
 
-        key = jwk.JWK(**key)
-        ET = jwt2.JWT(key=key,jwt=etoken)
-        ST = jwt2.JWT(key=key,jwt=ET.claims)
+        _key = jwk.JWK(**key)
+        ET = jwt2.JWT(key=_key,jwt=etoken)
+        ST = jwt2.JWT(key=_key,jwt=ET.claims)
 
         emessage = eval(ST.claims)["emessage"]
 
