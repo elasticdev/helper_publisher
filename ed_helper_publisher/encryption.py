@@ -53,13 +53,14 @@ class ObjSerialize(object):
 
         return base64.b64encode(self.iv + aes.encrypt(_str.encode('ascii', 'ignore')))
 
-    def decrypt(self,encrypted,passphrase=None):
+    def decrypt(self,encrypted,**kwargs):
 
         atfork()
+        self._set_eparams(**kwargs)
 
         encrypted = base64.b64decode(encrypted)
         iv = encrypted[:self._block_size]
-        aes = AES.new(str(passphrase), AES.MODE_CFB, iv)
+        aes = AES.new(str(self.passphrase), AES.MODE_CFB, iv)
         return aes.decrypt(encrypted[self._block_size:])
 
 class PermJWE(object):
@@ -121,7 +122,7 @@ class PermJWE(object):
         return results
     
     def de_serialize(self,encrypted,passphrase="reoTiJuFc440173r",convert2json=True):
-        _str = ObjSerialize(passphrase=str(passphrase)).decrypt(encrypted)
+        _str = self.obj_serialize.decrypt(encrypted,passphrase=str(passphrase))
         if not convert2json: return _str
         return self._byteify(json.loads(_str))
 
