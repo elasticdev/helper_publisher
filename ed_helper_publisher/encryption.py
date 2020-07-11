@@ -26,17 +26,6 @@ from subprocess import Popen
 from subprocess import PIPE
 from subprocess import STDOUT
 
-def byteify(input):
-    if isinstance(input, dict):
-        return {byteify(key): byteify(value)
-                for key, value in input.iteritems()}
-    elif isinstance(input, list):
-        return [byteify(element) for element in input]
-    elif isinstance(input, unicode):
-        return input.encode('utf-8')
-    else:
-        return input
-
 class ObjSerialize(object):
 
     def __init__(self,passphrase=None,iv=None):
@@ -81,6 +70,20 @@ class PermJWE(object):
         self.str_key = "hKJpfMMKPUkv4LuLYrI/HqJ8k9OWthXH+UXhE25+K788Zg2NFVskn9sqIERvACAcIMMShCJwPqma63fhuPBqKDnRdKNRxOq+Y7NTcTYT8g=="
         self.classname = "PermJWE"
 
+    def _byteify(self,input):
+
+        if isinstance(input, dict):
+            values = {self._byteify(key): self._byteify(value)
+                      for key, value in input.iteritems()}
+        elif isinstance(input, list):
+            values = [self._byteify(element) for element in input]
+        elif isinstance(input, unicode):
+            values = input.encode('utf-8')
+        else:
+            values = input
+
+        return values
+
     def _get_md5sum(self,hash_object):
     
         '''determines the md5sum of a string through the use of the unix shell'''
@@ -119,7 +122,7 @@ class PermJWE(object):
     def de_serialize(self,encrypted,passphrase="reoTiJuFc440173r",convert2json=True):
         _str = ObjSerialize(passphrase=str(passphrase)).decrypt(encrypted)
         if not convert2json: return _str
-        return byteify(json.loads(_str))
+        return self.byteify(json.loads(_str))
 
     def _get_key(self,**kwargs):
 
