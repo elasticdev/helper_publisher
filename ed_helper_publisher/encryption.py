@@ -37,138 +37,127 @@ def byteify(input):
     else:
         return input
 
+def wrapper_json_loads(obj):
+    _jloaded = json.loads(obj)
+    return byteify(_jloaded)
+    #return safe_load(_jloaded)
+
+def wrapper_json_load(obj):
+    _jloaded = json.load(obj)
+    return byteify(_jloaded)
+
 class ObjSerialize(object):
 
-    def __init__(self):
+    def __init__(self,passphrase=None,iv=None):
 
-        self._block_size=16
-        self._default_passphrase = 'reoTiJuFc440173r'
+        self.BLOCK_SIZE=16
+        self.iv = iv
 
-    def _set_eparams(self,**kwargs):
-
-        self.iv = kwargs.get("iv")
-        self.passphrase = kwargs.get("passphrase")
-        if not self.passphrase: self.passphrase = self._default_passphrase
-
-    def _byteify(self,input):
-
-        if isinstance(input, dict):
-            values = {self._byteify(key): self._byteify(value)
-                      for key, value in input.iteritems()}
-        elif isinstance(input, list):
-            values = [self._byteify(element) for element in input]
-        elif isinstance(input, unicode):
-            values = input.encode('utf-8')
-        else:
-            values = input
-
-        return values
-
-    def set(self,obj,**kwargs):
+        if not passphrase: passphrase = 'reoTiJuFc440173r'
+        self.passphrase = passphrase
+ 
+    def encrypt(self,_str,passphrase=None):
 
         atfork()
 
-        self._set_eparams(**kwargs)
+        if not passphrase: passphrase = self.passphrase
 
         if not self.iv: 
-            iv = Random.new().read(self._block_size)
+            iv = Random.new().read(self.BLOCK_SIZE)
         else:
             iv = self.iv
 
-        aes = AES.new(str(self.passphrase), AES.MODE_CFB, iv)
+        aes = AES.new(str(passphrase), AES.MODE_CFB, iv)
 
-        return base64.b64encode(iv + aes.encrypt(obj.encode('ascii', 'ignore')))
+        return base64.b64encode(iv + aes.encrypt(_str.encode('ascii', 'ignore')))
 
-    def unset(self,encrypted,**kwargs):
+    def decrypt(self,encrypted,passphrase=None):
 
         atfork()
-        self._set_eparams(**kwargs)
 
+        if not passphrase: passphrase = self.passphrase
         encrypted = base64.b64decode(encrypted)
-        iv = encrypted[:self._block_size]
-        aes = AES.new(str(self.passphrase), AES.MODE_CFB, iv)
+        iv = encrypted[:self.BLOCK_SIZE]
+        aes = AES.new(str(passphrase), AES.MODE_CFB, iv)
+        return aes.decrypt(encrypted[self.BLOCK_SIZE:])
 
-        result = aes.decrypt(encrypted[self._block_size:])
+def e_serialize(obj,passphrase="reoTiJuFc440173r",iv=None):
 
-        if not kwargs.get("convert2json"): return result
+    if isinstance(obj,dict):
+        _str = json.dumps(obj)
+    else:
+        _str = obj 
 
-        print ''
-        print ''
-        print self.passphrase
-        print ''
-        print ''
-        print result
-        print ''
-        print ''
-        print ''
-        print ''
+    return ObjSerialize(passphrase=str(passphrase),iv=iv).encrypt(_str)
 
-        return byteify(json.loads(result))
+def de_serialize(encrypted,passphrase="reoTiJuFc440173r",convert2json=True):
+    _str = ObjSerialize(passphrase=str(passphrase)).decrypt(encrypted)
+    if not convert2json: return _str
+    return wrapper_json_loads(_str)
+
+def string_md5sum(hash_object):
+
+    '''determines the md5sum of a string through the use of the unix shell'''
+
+    try:
+        cmd = 'echo "%s" | md5sum | cut -d " " -f 1' % hash_object
+        process = Popen(cmd,shell=True,bufsize=0,stdout=PIPE,stderr=STDOUT)
+        out,error = process.communicate()
+        exitcode = process.returncode
+        ret = out.rstrip()
+        if exitcode != 0: raise
+        #cmd = os.popen(cmd, "r")
+        #ret = cmd.read().rstrip()
+    except:
+        print "Failed to calculate the md5sum of a string %s" % hash_object
+        return False
+    return ret
 
 class PermJWE(object):
 
     def __init__(self,**kwargs):
 
-        self.obj_serialize = ObjSerialize()
         self.algor = kwargs.get("algor","HS256")
-        self._symmetric_key = "hKJpfMMKPUkv3LuLYrI/HqJ8k3OWthXH+UXhE25+K738Zg2NFVskn8sqIERvACAcIMMShCJwPqma83fhuPBqKDnRdKNRxOq+Y7NTcTYT9g=="
+        #self.secret = kwargs.get("secret","reoTiJuFc440173r")
+        self.str_key = "hKJpfMMKPUkv4LuLYrI/HqJ8k9OWthXH+UXhE25+K788Zg2NFVskn9sqIERvACAcIMMShCJwPqma63fhuPBqKDnRdKNRxOq+Y7NTcTYT8g=="
         self.classname = "PermJWE"
 
-    def _get_md5sum(self,hash_object):
-    
-        '''determines the md5sum of a string through the use of the unix shell'''
-    
-        cmd = 'echo "%s" | md5sum | cut -d " " -f 1' % hash_object
-    
-        try:
-            process = Popen(cmd,shell=True,bufsize=0,stdout=PIPE,stderr=STDOUT)
-            out,error = process.communicate()
-            exitcode = process.returncode
-            ret = out.rstrip()
-            if exitcode == 0: return ret
-    
-            print "Failed to calculate the md5sum of a string %s" % hash_object
-        except:
-            print "Failed to calculate the md5sum of a string %s" % hash_object
-    
-        return False
+    def create_symmetric_key(self):
 
+        symmetric_key = jwk.JWK(generate='oct',size=256).export()
+        results = {"key":symmetric_key}
+        results["str_key"] = e_serialize(symmetric_key)
+        
+        return results
+    
     def _get_key(self,**kwargs):
 
         key = kwargs.get("key")
+        str_key = kwargs.get("str_key")
         
         if key and not isinstance(key,dict): 
             key = eval(key)
+        elif str_key:
+            key = dict(de_serialize(str_key,convert2json=True))
         else:
             print "using default symmetric key"
-            key = dict(self.obj_serialize.unset(self._symmetric_key,convert2json=True))
+            key = dict(de_serialize(self.str_key,convert2json=True))
 
         return key
 
     def encrypt(self,**kwargs):
 
-        values = kwargs.get("values")
-        filename = kwargs.get("filename")
-
-        if not values and not filename:
-            print "We need values or a filename to encrypt data"
-
-        if not values and filename:
-            with open(filename) as json_file:
-                values = json.load(json_file)
-
-        if isinstance(values,dict):
-            _str = json.dumps(values)
-        else:
-            _str = values 
-
+        values = kwargs["values"]
         key = self._get_key(**kwargs)
 
+        secret = kwargs.get("secret")
+        if not secret: secret = string_md5sum(key)
         header = kwargs.get("header",{"alg": "A256KW", "enc": "A256CBC-HS512"})
 
-        emessage = self.obj_serialize.set(_str)
+        emessage = e_serialize(values,passphrase=secret)
 
-        payload = {"emessage":emessage}
+        payload = {}
+        payload["emessage"] = emessage
 
         _key = jwk.JWK(**key)
 
@@ -186,28 +175,14 @@ class PermJWE(object):
 
     def decrypt(self,**kwargs):
 
-        filename = kwargs.get("filename")
         etoken = kwargs["token"]
         key = self._get_key(**kwargs)
+        secret = kwargs.get("secret",string_md5sum(key))
 
-        _key = jwk.JWK(**key)
-
-        ET = jwt2.JWT(key=_key,jwt=etoken)
-        ST = jwt2.JWT(key=_key,jwt=ET.claims)
+        key = jwk.JWK(**key)
+        ET = jwt2.JWT(key=key,jwt=etoken)
+        ST = jwt2.JWT(key=key,jwt=ET.claims)
 
         emessage = eval(ST.claims)["emessage"]
 
-        data = self.obj_serialize.unset(emessage,convert2json=True)
-
-        if not filename: return data
-
-        with open("/tmp/test.json", 'w') as json_file:
-
-            json_string = json.dumps(etoken.serialize(), 
-                                     default=lambda o: o.__dict__, 
-                                     sort_keys=True, 
-                                     indent=2)
-
-            json_file.write(json_string)
-
-        return data
+        return de_serialize(emessage,passphrase=secret,convert2json=True)
