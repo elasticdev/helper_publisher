@@ -157,11 +157,16 @@ class PermJWE(object):
             with open(filename) as json_file:
                 values = json.load(json_file)
 
+        if isinstance(values,dict):
+            _str = json.dumps(values)
+        else:
+            _str = values 
+
         key = self._get_key(**kwargs)
 
         header = kwargs.get("header",{"alg": "A256KW", "enc": "A256CBC-HS512"})
 
-        emessage = self.obj_serialize.set(values)
+        emessage = self.obj_serialize.set(_str)
 
         payload = {"emessage":emessage}
 
@@ -185,9 +190,10 @@ class PermJWE(object):
         etoken = kwargs["token"]
         key = self._get_key(**kwargs)
 
-        key = jwk.JWK(**key)
-        ET = jwt2.JWT(key=key,jwt=etoken)
-        ST = jwt2.JWT(key=key,jwt=ET.claims)
+        _key = jwk.JWK(**key)
+
+        ET = jwt2.JWT(key=_key,jwt=etoken)
+        ST = jwt2.JWT(key=_key,jwt=ET.claims)
 
         emessage = eval(ST.claims)["emessage"]
 
