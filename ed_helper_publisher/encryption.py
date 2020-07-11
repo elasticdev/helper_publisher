@@ -81,6 +81,16 @@ class ObjSerialize(object):
 
         if not kwargs.get("convert2json"): return result
 
+        print ''
+        print ''
+        print ''
+        print ''
+        print result
+        print ''
+        print ''
+        print ''
+        print ''
+
         return self._byteify(json.loads(result))
 
 class PermJWE(object):
@@ -118,8 +128,8 @@ class PermJWE(object):
         if key and not isinstance(key,dict): 
             key = eval(key)
         else:
-            key = dict(self.obj_serialize.unset(self._symmetric_key,convert2json=False))
             print "using default symmetric key"
+            key = dict(self.obj_serialize.unset(self._symmetric_key,convert2json=True))
 
         return key
 
