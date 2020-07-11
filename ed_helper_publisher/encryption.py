@@ -71,6 +71,7 @@ class PermJWE(object):
         self.classname = "PermJWE"
 
     def _byteify(self,input):
+
         if isinstance(input, dict):
             return {self.byteify(key): self.byteify(value)
                     for key, value in input.iteritems()}
@@ -119,7 +120,7 @@ class PermJWE(object):
     def de_serialize(self,encrypted,passphrase="reoTiJuFc440173r",convert2json=True):
         _str = ObjSerialize(passphrase=str(passphrase)).decrypt(encrypted)
         if not convert2json: return _str
-        return self.byteify(json.loads(_str))
+        return self._byteify(json.loads(_str))
 
     def _get_key(self,**kwargs):
 
