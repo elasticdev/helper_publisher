@@ -30,41 +30,43 @@ class ObjSerialize(object):
 
     def __init__(self,passphrase=None,iv=None):
 
-        self.BLOCK_SIZE=16
-        self.iv = iv
-
-        if not passphrase: passphrase = 'reoTiJuFc440173r'
-        self.passphrase = passphrase
+        self._block_size=16
+        self._default_passphrase = 'reoTiJuFc440173r'
  
-    def encrypt(self,_str,passphrase=None):
+    def _set_eparams(self,**kwargs):
+
+        self.iv = kwargs.get("iv")
+        self.passphrase = kwargs.get("passphrase")
+
+        if not self.passphrase: self.passphrase = self._default_passphrase
+
+        if not self.iv: 
+            self.iv = Random.new().read(self._block_size)
+
+    def encrypt(self,_str,**kwargs):
 
         atfork()
 
-        if not passphrase: passphrase = self.passphrase
+        self._set_eparams(**kwargs)
 
-        if not self.iv: 
-            iv = Random.new().read(self.BLOCK_SIZE)
-        else:
-            iv = self.iv
+        aes = AES.new(str(self.passphrase), AES.MODE_CFB, self.iv)
 
-        aes = AES.new(str(passphrase), AES.MODE_CFB, iv)
-
-        return base64.b64encode(iv + aes.encrypt(_str.encode('ascii', 'ignore')))
+        return base64.b64encode(self.iv + aes.encrypt(_str.encode('ascii', 'ignore')))
 
     def decrypt(self,encrypted,passphrase=None):
 
         atfork()
 
-        if not passphrase: passphrase = self.passphrase
         encrypted = base64.b64decode(encrypted)
-        iv = encrypted[:self.BLOCK_SIZE]
+        iv = encrypted[:self._block_size]
         aes = AES.new(str(passphrase), AES.MODE_CFB, iv)
-        return aes.decrypt(encrypted[self.BLOCK_SIZE:])
+        return aes.decrypt(encrypted[self._block_size:])
 
 class PermJWE(object):
 
     def __init__(self,**kwargs):
 
+        self.obj_serialize = ObjSerialize()
         self.algor = kwargs.get("algor","HS256")
         #self.secret = kwargs.get("secret","reoTiJuFc440173r")
         self.str_key = "hKJpfMMKPUkv4LuLYrI/HqJ8k9OWthXH+UXhE25+K788Zg2NFVskn9sqIERvACAcIMMShCJwPqma63fhuPBqKDnRdKNRxOq+Y7NTcTYT8g=="
@@ -107,7 +109,8 @@ class PermJWE(object):
         else:
             _str = obj 
     
-        return ObjSerialize(passphrase=str(passphrase),iv=iv).encrypt(_str)
+        return self.obj_serialize.encrypt(_str,passphrase=str(passphrase),iv=iv)
+        #return ObjSerialize(passphrase=str(passphrase),iv=iv).encrypt(_str)
 
     def create_symmetric_key(self):
 
