@@ -118,7 +118,7 @@ class PermJWE(object):
         if key and not isinstance(key,dict): 
             key = eval(key)
         else:
-            key = dict(self.obj_serialize.unset(self._symmetric_key,convert2json=True))
+            key = dict(self.obj_serialize.unset(self._symmetric_key,convert2json=False))
             print "using default symmetric key"
 
         return key
