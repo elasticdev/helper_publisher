@@ -1,4 +1,3 @@
-README.md
 setup.py
 ed_helper_publisher/__init__.py
 ed_helper_publisher/encryption.py
@@ -16,3 +15,4 @@ ed_helper_publisher/cloud/__init__.py
 ed_helper_publisher/cloud/awscli.py
 ed_helper_publisher/cloud/boto_helper.py
 ed_helper_publisher/cloud/docli.py
+ed_helper_publisher/cloud/gcloudcli.py
