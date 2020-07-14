@@ -93,7 +93,25 @@ class GcloudCli(ResourceCmdHelper):
 
         self.logger.debug('Region set to "{}"'.format(self.gcloud_region))
 
-    def get_credentials(self):
+    def set_credentials(self):
 
         #self.google_application_credentials = self.inputargs.get("google_application_credentials")
         self.google_application_credentials = os.environ.get.get("GOOGLE_APPLICATION_CREDENTIALS","/var/tmp/terraform/credentials.json")
+
+        return self.google_application_credentials
+
+    def get_init_credentials_cmds(self):
+
+        self.set_credentials()
+        self.set_project(self)
+
+        cmds = [ "gcloud auth activate-service-account --key-file={}".format(self.google_application_credentials) ]
+        cmds.append("gcloud config set project {}".format(self.gcloud_project))
+
+        return cmds
+
+    def set_project(self):
+
+        self.gcloud_project = os.environ.get["GCLOUD_PROJECT"]
+
+        return self.gcloud_project
