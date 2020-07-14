@@ -56,7 +56,8 @@ class ResourceCmdHelper(object):
             try:
                 print_json(output)
             except:
-                print output
+                self.logger.warn("Could not convert output to json")
+
         print ''
         print ''
         print '_ed_begin_output'
