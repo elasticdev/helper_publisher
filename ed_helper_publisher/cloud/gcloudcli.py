@@ -96,7 +96,7 @@ class GcloudCli(ResourceCmdHelper):
     def set_credentials(self):
 
         #self.google_application_credentials = self.inputargs.get("google_application_credentials")
-        self.google_application_credentials = os.environ.get.get("GOOGLE_APPLICATION_CREDENTIALS","/var/tmp/terraform/credentials.json")
+        self.google_application_credentials = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS","/tmp/credentials.json")
 
         return self.google_application_credentials
 
