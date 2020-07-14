@@ -112,6 +112,6 @@ class GcloudCli(ResourceCmdHelper):
 
     def set_project(self):
 
-        self.gcloud_project = os.environ.get["GCLOUD_PROJECT"]
+        self.gcloud_project = os.environ["GCLOUD_PROJECT"]
 
         return self.gcloud_project
