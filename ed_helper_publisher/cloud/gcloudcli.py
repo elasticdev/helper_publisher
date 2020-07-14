@@ -103,7 +103,7 @@ class GcloudCli(ResourceCmdHelper):
     def get_init_credentials_cmds(self):
 
         self.set_credentials()
-        self.set_project(self)
+        self.set_project()
 
         cmds = [ "gcloud auth activate-service-account --key-file={}".format(self.google_application_credentials) ]
         cmds.append("gcloud config set project {}".format(self.gcloud_project))
