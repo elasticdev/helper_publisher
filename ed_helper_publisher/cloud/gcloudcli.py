@@ -18,6 +18,8 @@ import json
 from ed_helper_publisher.loggerly import ElasticDevLogger
 from ed_helper_publisher.utilities import OnDiskTmpDir
 from ed_helper_publisher.resource_manage import ResourceCmdHelper
+from ed_helper_publisher.utilities import id_generator
+
 
 class GcloudCli(ResourceCmdHelper):
 
@@ -93,25 +95,146 @@ class GcloudCli(ResourceCmdHelper):
 
         self.logger.debug('Region set to "{}"'.format(self.gcloud_region))
 
-    def set_credentials(self):
+    #################################################################################################################
+    # non docker execution
 
-        #self.google_application_credentials = self.inputargs.get("google_application_credentials")
-        self.google_application_credentials = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS","/tmp/credentials.json")
+    def _get_init_credentials_cmds(self):
 
-        return self.google_application_credentials
-
-    def get_init_credentials_cmds(self):
-
-        self.set_credentials()
-        self.set_project()
-
+        self.set_required()
         cmds = [ "gcloud auth activate-service-account --key-file={}".format(self.google_application_credentials) ]
         cmds.append("gcloud config set project {}".format(self.gcloud_project))
 
         return cmds
 
-    def set_project(self):
+    def set_credentials(self):
 
-        self.gcloud_project = os.environ["GCLOUD_PROJECT"]
+        cmds = self._get_init_credentials_cmds()
 
-        return self.gcloud_project
+        for cmd in cmds:
+            self.execute(cmd,output_to_json=None,exit_error=True)
+
+    #################################################################################################################
+    # docker execution
+
+    def cleanup_docker_run(self):
+
+        if hasattr(self,"gcloud_container_name") and self.self.gcloud_container_name:
+            cmd = [ "docker rm -fv {} 2>&1 > /dev/null".format(self.gcloud_container_name) ]
+            self.execute(cmd,exit_error=False,output_to_json=None)
+
+        if hasattr(self,"filename") and self.self.filename:
+            os.system("rm -rf {}".format(self.filename))
+
+        if hasattr(self,"tempdir") and self.tempdir: 
+            self.tempdir.delete()
+
+    def init_docker_run(self):
+
+        self.gcloud_container_name = id_generator(8)
+
+        cmds = ["docker pull google/cloud-sdk:latest 2>&1 > /dev/null"]
+        cmds.append('for i in `docker ps -a|grep gcloud| cut -d " " -f 1`; do echo $i; docker rm -fv $i; done')
+
+        cmds.append("docker run -ti -v {}:{} --name {} google/cloud-sdk gcloud auth activate-service-account --key-file {} || exit 9".format(self.google_application_credentials,
+                                                                                                                                             self.google_application_credentials,
+                                                                                                                                             self.gcloud_container_name,
+                                                                                                                                             self.google_application_credentials))
+
+        cmds.append("docker run --rm -ti --volumes-from {} google/cloud-sdk gcloud config set project {}".format(self.gcloud_container_name,
+                                                                                                                 self.gcloud_project))
+
+        for cmd in cmds:
+
+            results = self.execute(cmd,output_to_json=None,exit_error=False)
+            status = results.get("status")
+            output = results.get("output")
+  
+            self.logger.debug('')
+            self.logger.debug(output)
+            self.logger.debug('')
+
+            if not status: return False
+
+    def write_cloud_creds(self):
+    
+        project_id = os.environ.get("GCLOUD_PROJECT")
+        private_key_id = os.environ.get("GCLOUD_PRIVATE_KEY_ID")
+        private_key = os.environ.get("GCLOUD_PRIVATE_KEY")
+        client_id = os.environ.get("GCLOUD_CLIENT_ID")
+        client_email = os.environ.get("GCLOUD_CLIENT_EMAIL")
+        client_x509_cert_url = os.environ.get("GCLOUD_CLIENT_X509_CERT_URL")
+    
+        if not project_id: 
+            self.logger.debug("GCLOUD_PROJECT is required for write credentials")
+            return
+    
+        if not private_key_id: 
+            self.logger.debug("GCLOUD_PRIVATE_KEY_ID is required for write credentials")
+            return
+    
+        if not private_key: 
+            self.logger.debug("GCLOUD_PRIVATE_KEY is required for write credentials")
+            return
+    
+        if not client_id: 
+            self.logger.debug("GCLOUD_CLIENT_ID is required for write credentials")
+            return
+    
+        if not client_email: 
+            self.logger.debug("GCLOUD_CLIENT_EMAIL is required for write credentials")
+            return
+    
+        if not client_x509_cert_url: 
+            self.logger.debug("GCLOUD_CLIENT_X509_CERT_URL is required for write credentials")
+            return
+    
+        if not hasattr(self,"tempdir") and not self.tempdir: self.set_ondisktmp()
+        self.google_application_credentials = os.path.join(self.tempdir.get(),".creds","gcloud.json")
+        creds_dir = os.path.dirname(self.google_application_credentials)
+    
+        auth_uri = os.environ.get("GCLOUD_AUTH_URI","https://accounts.google.com/o/oauth2/auth")
+        token_uri = os.environ.get("GCLOUD_TOKEN_URI","https://oauth2.googleapis.com/token")
+        auth_provider = os.environ.get("GCLOUD_AUTH_PROVIDER","https://www.googleapis.com/oauth2/v1/certs")
+    
+        values = { "type": "service_account",
+                   "auth_uri": auth_uri,
+                   "token_uri": token_uri,
+                   "auth_provider_x509_cert_url": auth_provider,
+                   "project_id": project_id,
+                   "private_key_id": private_key_id,
+                   "private_key": private_key,
+                   "client_email": client_email,
+                   "client_id": client_id,
+                   "client_x509_cert_url": client_x509_cert_url,
+                   }
+    
+        json_object = json.dumps(values,indent=2).replace('\\\\','\\')
+    
+        if not os.path.exists(creds_dir): os.system("mkdir -p {}".format(creds_dir))
+          
+        print "gcloud directory {} ...".format(self.google_application_credentials)
+    
+        # Writing to sample.json 
+        with open(self.google_application_credentials, "w") as outfile: 
+            outfile.write(json_object) 
+    
+        return self.google_application_credentials
+
+    def set_required(self):
+
+        self.google_application_credentials = self.write_cloud_creds()
+
+        if not self.google_application_credentials:
+            self.google_application_credentials = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+
+        if not self.google_application_credentials:
+            self.logger.error('cannot find environmental variables "GOOGLE_APPLICATION_CREDENTIALS"')
+            exit(9)
+
+        self.gcloud_project = os.environ.get("GCLOUD_PROJECT")
+
+        if not self.gcloud_project:
+            self.logger.error('cannot find environmental variables "GCLOUD_PROJECT"')
+            exit(9)
+
+        return True
