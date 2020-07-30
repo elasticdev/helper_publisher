@@ -134,11 +134,6 @@ class GcloudCli(ResourceCmdHelper):
 
     def init_docker_run(self):
 
-        print '1a'*32
-        print '1a'*32
-        print '1a'*32
-        print '1a'*32
-
         self.gcloud_container_name = id_generator(8)
 
         cmds = ["docker pull google/cloud-sdk:latest 2>&1 > /dev/null"]
@@ -225,7 +220,7 @@ class GcloudCli(ResourceCmdHelper):
     
         if not os.path.exists(creds_dir): os.system("mkdir -p {}".format(creds_dir))
           
-        print "gcloud directory {} ...".format(self.google_application_credentials)
+        self.logger.debug("gcloud directory {} ...".format(self.google_application_credentials))
     
         # Writing to sample.json 
         with open(self.google_application_credentials, "w") as outfile: 
