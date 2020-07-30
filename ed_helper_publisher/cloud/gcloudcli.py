@@ -157,7 +157,6 @@ class GcloudCli(ResourceCmdHelper):
         print cmds[2]
         print ''
         print 'i'*32
-        exit(9)
 
         for cmd in cmds:
 
