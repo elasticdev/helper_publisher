@@ -211,14 +211,7 @@ class GcloudCli(ResourceCmdHelper):
     
         json_object = json.dumps(values,indent=2).replace('\\\\','\\')
     
-        if not os.path.exists(creds_dir): 
-            # Testingyoyo
-            print ''
-            print ''
-            print "mkdir -p {}".format(creds_dir)
-            print ''
-            print ''
-            os.system("mkdir -p {}".format(creds_dir))
+        if not os.path.exists(creds_dir): os.system("mkdir -p {}".format(creds_dir))
           
         print "gcloud directory {} ...".format(self.google_application_credentials)
     
@@ -226,6 +219,14 @@ class GcloudCli(ResourceCmdHelper):
         with open(self.google_application_credentials, "w") as outfile: 
             outfile.write(json_object) 
 
+        # Testingyoyo
+        print ''
+        print ''
+        print ''
+        print self.google_application_credentials
+        print ''
+        print ''
+        raise
         return self.google_application_credentials
 
     def set_required(self):
