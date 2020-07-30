@@ -39,6 +39,9 @@ class GcloudCli(ResourceCmdHelper):
                                     "job_instance_id",
                                     "job_id" ]
 
+        self.share_dir = os.environ.get("SHARE_DIR","/var/tmp/share")
+        self.stateful_dir = os.path.join(self.share_dir,id_generator(8))
+
     def get_tags(self):
 
         tags = [ self.gcloud_region, 
@@ -203,7 +206,8 @@ class GcloudCli(ResourceCmdHelper):
     
         if not hasattr(self,"tempdir") or not self.tempdir: self.set_ondisktmp()
 
-        self.google_application_credentials = os.path.join(self.tempdir.get(),".creds","gcloud.json")
+        self.google_application_credentials = os.path.join(self.stateful_dir,".creds","gcloud.json")
+
         creds_dir = os.path.dirname(self.google_application_credentials)
     
         auth_uri = os.environ.get("GCLOUD_AUTH_URI","https://accounts.google.com/o/oauth2/auth")
