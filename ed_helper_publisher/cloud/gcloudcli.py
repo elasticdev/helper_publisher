@@ -154,18 +154,6 @@ class GcloudCli(ResourceCmdHelper):
 
         for cmd in cmds:
 
-            # Testingyoyo
-            print 'i'*32
-            print ''
-            print ''
-            print self.google_application_credentials
-            print ''
-            print ''
-            print cmd
-            print ''
-            print ''
-            print ''
-
             results = self.execute(cmd,output_to_json=None,exit_error=False)
             status = results.get("status")
             output = results.get("output")
@@ -174,13 +162,9 @@ class GcloudCli(ResourceCmdHelper):
             self.logger.debug(output)
             self.logger.debug('')
 
-            print '1b'*32
-            print '1b'*32
-            print '1b'*32
-            print '1b'*32
             if not status: return False
 
-        print '1c'*32
+        return True
 
     def write_cloud_creds(self):
     
