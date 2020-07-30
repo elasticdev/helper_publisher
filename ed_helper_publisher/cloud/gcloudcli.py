@@ -189,6 +189,7 @@ class GcloudCli(ResourceCmdHelper):
             return
     
         if not hasattr(self,"tempdir") and not self.tempdir: self.set_ondisktmp()
+
         self.google_application_credentials = os.path.join(self.tempdir.get(),".creds","gcloud.json")
         creds_dir = os.path.dirname(self.google_application_credentials)
     
@@ -217,6 +218,12 @@ class GcloudCli(ResourceCmdHelper):
         # Writing to sample.json 
         with open(self.google_application_credentials, "w") as outfile: 
             outfile.write(json_object) 
+
+        print 'a'*32
+        print ''
+        print self.google_application_credentials
+        print ''
+        print 'b'*32
     
         return self.google_application_credentials
 
