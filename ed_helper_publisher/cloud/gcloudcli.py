@@ -118,11 +118,11 @@ class GcloudCli(ResourceCmdHelper):
 
     def cleanup_docker_run(self):
 
-        if hasattr(self,"gcloud_container_name") and self.self.gcloud_container_name:
+        if hasattr(self,"gcloud_container_name") and self.gcloud_container_name:
             cmd = [ "docker rm -fv {} 2>&1 > /dev/null".format(self.gcloud_container_name) ]
             self.execute(cmd,exit_error=False,output_to_json=None)
 
-        if hasattr(self,"filename") and self.self.filename:
+        if hasattr(self,"filename") and self.filename:
             os.system("rm -rf {}".format(self.filename))
 
         if hasattr(self,"tempdir") and self.tempdir: 
@@ -211,7 +211,14 @@ class GcloudCli(ResourceCmdHelper):
     
         json_object = json.dumps(values,indent=2).replace('\\\\','\\')
     
-        if not os.path.exists(creds_dir): os.system("mkdir -p {}".format(creds_dir))
+        if not os.path.exists(creds_dir): 
+            # Testingyoyo
+            print ''
+            print ''
+            print "mkdir -p {}".format(creds_dir)
+            print ''
+            print ''
+            os.system("mkdir -p {}".format(creds_dir))
           
         print "gcloud directory {} ...".format(self.google_application_credentials)
     
