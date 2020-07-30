@@ -14,6 +14,7 @@
 
 import os
 import json
+from time import sleep
 
 from ed_helper_publisher.loggerly import ElasticDevLogger
 from ed_helper_publisher.utilities import OnDiskTmpDir
@@ -155,6 +156,16 @@ class GcloudCli(ResourceCmdHelper):
 
             if not status: return False
 
+        # Testingyoyo
+        print 'i'*32
+        print ''
+        print ''
+        print self.google_application_credentials
+        print ''
+        print ''
+        print 'i'*32
+        sleep(300)
+
     def write_cloud_creds(self):
     
         project_id = os.environ.get("GCLOUD_PROJECT")
@@ -219,14 +230,6 @@ class GcloudCli(ResourceCmdHelper):
         with open(self.google_application_credentials, "w") as outfile: 
             outfile.write(json_object) 
 
-        # Testingyoyo
-        print ''
-        print ''
-        print ''
-        print self.google_application_credentials
-        print ''
-        print ''
-        raise
         return self.google_application_credentials
 
     def set_required(self):
