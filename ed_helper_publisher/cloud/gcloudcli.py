@@ -219,12 +219,6 @@ class GcloudCli(ResourceCmdHelper):
         with open(self.google_application_credentials, "w") as outfile: 
             outfile.write(json_object) 
 
-        print 'a'*32
-        print ''
-        print self.google_application_credentials
-        print ''
-        print 'b'*32
-    
         return self.google_application_credentials
 
     def set_required(self):
