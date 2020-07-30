@@ -139,13 +139,14 @@ class GcloudCli(ResourceCmdHelper):
         cmds = ["docker pull google/cloud-sdk:latest 2>&1 > /dev/null"]
         cmds.append('for i in `docker ps -a|grep gcloud| cut -d " " -f 1`; do echo $i; docker rm -fv $i; done')
 
-        cmds.append("docker run -ti -v {}:{} --name {} google/cloud-sdk gcloud auth activate-service-account --key-file {} || exit 9".format(self.google_application_credentials,
-                                                                                                                                             self.google_application_credentials,
-                                                                                                                                             self.gcloud_container_name,
-                                                                                                                                             self.google_application_credentials))
+        #cmds.append("docker run -ti -v {}:{} --name {} google/cloud-sdk gcloud auth activate-service-account --key-file {} || exit 9".format(self.google_application_credentials,
+        cmds.append("docker run -v {}:{} --name {} google/cloud-sdk gcloud auth activate-service-account --key-file {} || exit 9".format(self.google_application_credentials,
+                                                                                                                                         self.google_application_credentials,
+                                                                                                                                         self.gcloud_container_name,
+                                                                                                                                         self.google_application_credentials))
 
-        cmds.append("docker run --rm -ti --volumes-from {} google/cloud-sdk gcloud config set project {}".format(self.gcloud_container_name,
-                                                                                                                 self.gcloud_project))
+        cmds.append("docker run --rm --volumes-from {} google/cloud-sdk gcloud config set project {}".format(self.gcloud_container_name,
+                                                                                                             self.gcloud_project))
 
         for cmd in cmds:
 
