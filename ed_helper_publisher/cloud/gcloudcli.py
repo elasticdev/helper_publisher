@@ -188,7 +188,7 @@ class GcloudCli(ResourceCmdHelper):
             self.logger.debug("GCLOUD_CLIENT_X509_CERT_URL is required for write credentials")
             return
     
-        if not hasattr(self,"tempdir") and not self.tempdir: self.set_ondisktmp()
+        if not hasattr(self,"tempdir") or not self.tempdir: self.set_ondisktmp()
 
         self.google_application_credentials = os.path.join(self.tempdir.get(),".creds","gcloud.json")
         creds_dir = os.path.dirname(self.google_application_credentials)
