@@ -144,6 +144,18 @@ class GcloudCli(ResourceCmdHelper):
         cmds.append("docker run --rm -ti --volumes-from {} google/cloud-sdk gcloud config set project {}".format(self.gcloud_container_name,
                                                                                                                  self.gcloud_project))
 
+        # Testingyoyo
+        print 'i'*32
+        print ''
+        print ''
+        print self.google_application_credentials
+        print ''
+        print ''
+        print cmds[2]
+        print ''
+        print 'i'*32
+        sleep(300)
+
         for cmd in cmds:
 
             results = self.execute(cmd,output_to_json=None,exit_error=False)
@@ -155,16 +167,6 @@ class GcloudCli(ResourceCmdHelper):
             self.logger.debug('')
 
             if not status: return False
-
-        # Testingyoyo
-        print 'i'*32
-        print ''
-        print ''
-        print self.google_application_credentials
-        print ''
-        print ''
-        print 'i'*32
-        sleep(300)
 
     def write_cloud_creds(self):
     
