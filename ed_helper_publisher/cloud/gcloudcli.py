@@ -140,10 +140,10 @@ class GcloudCli(ResourceCmdHelper):
         cmds = ["docker pull {}:latest 2>&1 > /dev/null".format(self.docker_image)]
         cmds.append('for i in `docker ps -a|grep gcloud| cut -d " " -f 1`; do echo $i; docker rm -fv $i; done')
 
-        cmds.append("docker run -v {}:{} --name {} {} gcloud auth activate-service-account --key-file {} || exit 9".format(self.google_application_credentials,
+        cmds.append("docker run -v {}:{} --name {} {} gcloud auth activate-service-account --key-file {} || exit 4".format(self.google_application_credentials,
                                                                                                                            self.google_application_credentials,
-                                                                                                                           self.docker_image,
                                                                                                                            self.gcloud_container_name,
+                                                                                                                           self.docker_image,
                                                                                                                            self.google_application_credentials))
 
         cmds.append("docker run --rm --volumes-from {} {} gcloud config set project {}".format(self.gcloud_container_name,
@@ -240,12 +240,12 @@ class GcloudCli(ResourceCmdHelper):
 
         if not self.google_application_credentials:
             self.logger.error('cannot find environmental variables "GOOGLE_APPLICATION_CREDENTIALS"')
-            exit(9)
+            exit(4)
 
         self.gcloud_project = os.environ.get("GCLOUD_PROJECT")
 
         if not self.gcloud_project:
             self.logger.error('cannot find environmental variables "GCLOUD_PROJECT"')
-            exit(9)
+            exit(4)
 
         return True
