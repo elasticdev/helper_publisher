@@ -60,14 +60,14 @@ def convert_str2json(_object,exit_error=None):
         logger.debug("Success: Converting str to a json")
         return _object
     except:
-        logger.error("Cannot convert str to a json.  Will try to eval")
+        logger.debug("Cannot convert str to a json.  Will try to eval")
 
     try:
         _object = eval(_object)
         logger.debug("Success: Evaluating str to a json")
         return _object
     except:
-        logger.error("Cannot eval str to a json.")
+        logger.debug("Cannot eval str to a json.")
 
         if exit_error: exit(13)
         return False
