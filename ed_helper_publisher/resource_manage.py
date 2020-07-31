@@ -27,9 +27,22 @@ class ResourceCmdHelper(object):
         self.classname = 'ResourceCmdHelper'
         self.logger = ElasticDevLogger(self.classname)
         self.logger.debug("Instantiating %s" % self.classname)
+        self.output = []
 
     def get_hash(self,_object):
         return get_hash(_object)
+
+    def add_output(self,cmd=None,**results):
+
+        try:
+            _output = convert_str2json(results["output"])
+        except:
+            _output = None
+
+        if not _output: return
+
+        if cmd: self.output.append(cmd)
+        self.output.extend(_output)
 
     def print_output(self,**kwargs):
 

@@ -42,6 +42,7 @@ class GcloudCli(ResourceCmdHelper):
         self.share_dir = os.environ.get("SHARE_DIR","/var/tmp/share")
         self.stateful_dir = os.path.join(self.share_dir,id_generator(8))
         self.docker_image = "google/cloud-sdk"
+        self.output = []
 
     def get_tags(self):
 
@@ -116,7 +117,11 @@ class GcloudCli(ResourceCmdHelper):
         cmds = self._get_init_credentials_cmds()
 
         for cmd in cmds:
-            self.execute(cmd,output_to_json=None,exit_error=True)
+            results = self.execute(cmd,output_to_json=None,exit_error=True)
+            output = results.get("output")
+            if output: self.logger.debug(output)
+
+            self.add_output(cmd=cmd,**results)
 
     #################################################################################################################
     # docker execution
@@ -155,10 +160,9 @@ class GcloudCli(ResourceCmdHelper):
             results = self.execute(cmd,output_to_json=None,exit_error=False)
             status = results.get("status")
             output = results.get("output")
+            if output: self.logger.debug(output)
   
-            self.logger.debug('')
-            self.logger.debug(output)
-            self.logger.debug('')
+            self.add_output(cmd=cmd,**results)
 
             if not status: return False
 
