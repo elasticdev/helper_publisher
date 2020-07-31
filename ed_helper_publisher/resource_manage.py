@@ -53,7 +53,7 @@ class ResourceCmdHelper(object):
         print ''
         print ''
         
-        if output_to_json:
+        if output_to_json and not isinstance(output,dict):
             try:
                 print_json(output)
             except:

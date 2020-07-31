@@ -96,7 +96,7 @@ def execute3(cmd,print_error=True,**kwargs):
         if exit_error: exit(process.returncode)
         return results
 
-    if output_to_json:
+    if output_to_json and not isinstance(output,dict):
         try:
             output = json.loads(output)
         except:

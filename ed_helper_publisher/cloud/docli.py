@@ -82,11 +82,11 @@ class DoCli(ResourceCmdHelper):
             else:
                 self.inputargs[env_var] = os.environ[env_var.upper()]
 
-    def get_final_cmd(self,cmd,add_region=True,output_json=True,add_token=True):
+    def get_final_cmd(self,cmd,add_region=True,output_to_json=True,add_token=True):
 
         if add_region: cmd = "{} --region {}".format(cmd,self.do_default_region)
         if add_token: cmd = "{} -t {}".format(cmd,self.do_token)
-        if output_json: cmd = "{} --output json".format(cmd)
+        if output_to_json: cmd = "{} --output json".format(cmd)
 
         return cmd
 
