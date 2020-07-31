@@ -93,7 +93,7 @@ def get_hash(data):
     try:
         calculated_hash = hashlib.md5(data).hexdigest()
     except:
-        logger.warn("Falling back to shellout md5sum for hash")
+        logger.debug("Falling back to shellout md5sum for hash")
         calculated_hash = shellout_hash(data)
 
     if not calculated_hash:
