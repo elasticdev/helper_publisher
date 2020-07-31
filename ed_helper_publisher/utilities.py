@@ -82,6 +82,7 @@ def shellout_hash(string):
     except: 
         print "Failed to calculate the md5sum of a string %s" % string
         return False
+
     return ret
 
 def get_hash(data):

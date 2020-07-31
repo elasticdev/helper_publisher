@@ -121,7 +121,7 @@ class GcloudCli(ResourceCmdHelper):
             output = results.get("output")
             if output: self.logger.debug(output)
 
-            self.add_output(cmd=cmd,**results)
+            self.add_output(cmd=cmd,remove_empty=True,**results)
 
     #################################################################################################################
     # docker execution
@@ -162,7 +162,7 @@ class GcloudCli(ResourceCmdHelper):
             output = results.get("output")
             if output: self.logger.debug(output)
   
-            self.add_output(cmd=cmd,**results)
+            self.add_output(cmd=cmd,remove_empty=True,**results)
 
             if not status: return False
 
