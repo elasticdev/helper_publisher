@@ -16,8 +16,6 @@ def convert_ed_output_to_values(output):
         if not record_on: continue
         values.append(line)
 
-    print "Try to convert an object"
-
     if not values:
         print 'ERROR: values is None/empty'
         exit(9)
