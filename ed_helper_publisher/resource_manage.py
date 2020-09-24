@@ -57,7 +57,7 @@ class ResourceCmdHelper(object):
 
             # Testingyoyo
             # revisit 34534057
-            if _output and isinstance(output,dict): 
+            if _output and isinstance(_output,dict): 
                 output = _output
 
         print '_ed_begin_output'
@@ -74,25 +74,17 @@ class ResourceCmdHelper(object):
         print ''
         print ''
         
-        # Testingyoyo
-        #if output_to_json and not isinstance(output,dict):
-        #    try:
-        #        print_json(output)
-        #    except:
-        #        self.logger.warn("Could not convert output to json")
+        if output_to_json and not isinstance(output,dict):
+            try:
+                output = convert_str2json(output)
+                print_json(output)
+            except:
+                self.logger.warn("Could not convert output to json")
 
         print ''
         print ''
         print '_ed_begin_output'
-        # Testingyoyo
-        print '1'*32
-        print '1'*32
-        print type(output)
-        print '2'*32
-        print '2'*32
         print output
-        print '3'*32
-        print '3'*32
         print '_ed_end_output'
 
     def successful_output(self,**kwargs):
