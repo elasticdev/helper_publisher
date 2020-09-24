@@ -88,11 +88,11 @@ class ResourceCmdHelper(object):
         print '1'*32
         print '1'*32
         print type(output)
-        print '1'*32
+        print '2'*32
+        print '2'*32
         print output
-        print '2'*32
-        print '2'*32
-        print '2'*32
+        print '3'*32
+        print '3'*32
         print '_ed_end_output'
 
     def successful_output(self,**kwargs):
