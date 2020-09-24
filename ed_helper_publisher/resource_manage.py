@@ -74,11 +74,12 @@ class ResourceCmdHelper(object):
         print ''
         print ''
         
-        if output_to_json and not isinstance(output,dict):
-            try:
-                print_json(output)
-            except:
-                self.logger.warn("Could not convert output to json")
+        # Testingyoyo
+        #if output_to_json and not isinstance(output,dict):
+        #    try:
+        #        print_json(output)
+        #    except:
+        #        self.logger.warn("Could not convert output to json")
 
         print ''
         print ''
@@ -86,6 +87,7 @@ class ResourceCmdHelper(object):
         # Testingyoyo
         print '1'*32
         print '1'*32
+        print type(output)
         print '1'*32
         print output
         print '2'*32
