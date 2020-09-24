@@ -1,4 +1,3 @@
-README.md
 setup.py
 ed_helper_publisher/__init__.py
 ed_helper_publisher/encryption.py
