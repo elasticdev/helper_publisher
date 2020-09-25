@@ -92,7 +92,15 @@ class ResourceCmdHelper(object):
         exit(0)
 
     def execute(self,cmd,**kwargs):
-        return execute3(cmd,**kwargs)
+        results = execute3(cmd,**kwargs)
+
+        print 'a'*32
+        print 'a'*32
+        print 'a'*32
+        print results
+        print 'a'*32
+        print 'a'*32
+        print 'a'*32
 
     def cmd_failed(self,**kwargs):
          
