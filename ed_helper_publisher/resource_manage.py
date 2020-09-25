@@ -84,16 +84,34 @@ class ResourceCmdHelper(object):
         print ''
         print ''
         print '_ed_begin_output'
+        # Testingyoyo
+        print 'z'*32
+        print 'z'*32
+        print 'z'*32
         print output
+        print 'z'*32
+        print 'z'*32
+        print 'z'*32
+        print 'z'*32
         print '_ed_end_output'
 
     def successful_output(self,**kwargs):
+        # Testingyoyo
+        print 'b'*32
+        print 'b'*32
+        print 'b'*32
+        print 'b'*32
         self._print_output(**kwargs)
+        print 'c'*32
+        print 'c'*32
+        print 'c'*32
+        print 'c'*32
         exit(0)
 
     def execute(self,cmd,**kwargs):
         results = execute3(cmd,**kwargs)
 
+        # Testingyoyo
         print 'a'*32
         print 'a'*32
         print 'a'*32
@@ -101,6 +119,8 @@ class ResourceCmdHelper(object):
         print 'a'*32
         print 'a'*32
         print 'a'*32
+
+        return results
 
     def cmd_failed(self,**kwargs):
          
