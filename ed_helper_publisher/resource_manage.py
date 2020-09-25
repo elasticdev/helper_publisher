@@ -34,6 +34,9 @@ class ResourceCmdHelper(object):
 
     def add_output(self,cmd=None,remove_empty=None,**results):
 
+        #_outputs = self._convert_to_json(results["output"])
+        #if not isinstance(_outputs,dict): return 
+
         try:
             _outputs = convert_str2json(results["output"])
         except:
@@ -47,18 +50,23 @@ class ResourceCmdHelper(object):
             if remove_empty and not _output: continue
             self.output.extend(_output)
 
+    def _convert_to_json(self,output):
+
+        if isinstance(output,dict): return output
+
+        try:
+            _output = convert_str2json(output)
+            if not _output: raise
+            if not isinstance(_output,dict): raise
+            output = _output
+        except:
+            self.logger.warn("Could not convert output to json")
+
+        return output
+
     def print_output(self,**kwargs):
 
-        output = kwargs["output"]
-
-        if not isinstance(output,dict):
-
-            _output = convert_str2json(output)
-
-            # Testingyoyo
-            # revisit 34534057
-            if _output and isinstance(_output,dict): 
-                output = _output
+        output = self._convert_to_json(kwargs["output"])
 
         print '_ed_begin_output'
         print output
@@ -70,62 +78,20 @@ class ResourceCmdHelper(object):
         output_to_json = kwargs.get("output_to_json",True)
         output = kwargs.get("output")
         if not output: output = "There is no output from the command"
-
-        print ''
-        print ''
-        
-        if output_to_json and not isinstance(output,dict):
-            try:
-                _output = convert_str2json(output)
-                if not _output: raise
-                output = _output
-            except:
-                self.logger.warn("Could not convert output to json")
+        if output_to_json: output = self._convert_to_json(output)
 
         print ''
         print ''
         print '_ed_begin_output'
-        # Testingyoyo
-        print 'z'*32
-        print output_to_json
-        print output_to_json
-        print output_to_json
-        print output_to_json
-        print output_to_json
-        print 'z'*32
-        print 'z'*32
         print output
-        print 'z'*32
-        print 'z'*32
-        print 'z'*32
-        print 'z'*32
         print '_ed_end_output'
 
     def successful_output(self,**kwargs):
-        # Testingyoyo
-        print 'b'*32
-        print 'b'*32
-        print 'b'*32
-        print 'b'*32
         self._print_output(**kwargs)
-        print 'c'*32
-        print 'c'*32
-        print 'c'*32
-        print 'c'*32
         exit(0)
 
     def execute(self,cmd,**kwargs):
         results = execute3(cmd,**kwargs)
-
-        # Testingyoyo
-        print 'a'*32
-        print 'a'*32
-        print 'a'*32
-        print results
-        print 'a'*32
-        print 'a'*32
-        print 'a'*32
-
         return results
 
     def cmd_failed(self,**kwargs):
