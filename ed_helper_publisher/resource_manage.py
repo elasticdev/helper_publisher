@@ -83,15 +83,7 @@ class ResourceCmdHelper(object):
         print ''
         print ''
         print '_ed_begin_output'
-        print 'a'*32
-        print 'a'*32
-        print output_to_json
-        print output_to_json
-        print output_to_json
-        print 'a'*32
         print output
-        print 'a'*32
-        print 'a'*32
         print '_ed_end_output'
 
     def successful_output(self,**kwargs):
