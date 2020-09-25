@@ -87,6 +87,11 @@ class ResourceCmdHelper(object):
         print '_ed_begin_output'
         # Testingyoyo
         print 'z'*32
+        print output_to_json
+        print output_to_json
+        print output_to_json
+        print output_to_json
+        print output_to_json
         print 'z'*32
         print 'z'*32
         print output
