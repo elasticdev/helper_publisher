@@ -74,12 +74,13 @@ class ResourceCmdHelper(object):
         print ''
         print ''
         
-        #if output_to_json and not isinstance(output,dict):
-        #    try:
-        #        output = convert_str2json(output)
-        #        print_json(output)
-        #    except:
-        #        self.logger.warn("Could not convert output to json")
+        if output_to_json and not isinstance(output,dict):
+            try:
+                _output = convert_str2json(output)
+                if not _output: raise
+                output = _output
+            except:
+                self.logger.warn("Could not convert output to json")
 
         print ''
         print ''
