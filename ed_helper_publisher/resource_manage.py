@@ -137,6 +137,9 @@ class ResourceCmdHelper(object):
         status = True
         required_keys = []
 
+        _keys = kwargs.get("keys")
+        if not _keys: return 
+
         for key in kwargs["keys"]:
             if key not in self.inputargs: 
                 required_keys.append(key)
@@ -155,6 +158,9 @@ class ResourceCmdHelper(object):
 
     def check_either_inputargs(self,**kwargs):
       
+        _keys = kwargs.get("keys")
+        if not _keys: return 
+
         for key in kwargs["keys"]:
             if key in self.inputargs: return 
 
