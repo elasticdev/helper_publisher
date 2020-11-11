@@ -88,6 +88,14 @@ def execute3(cmd,print_error=True,**kwargs):
 
     exit_error = kwargs.get("exit_error")
 
+    print cmd
+    print cmd
+    print cmd
+    print cmd
+    print cmd
+    print cmd
+    raise
+
     process = Popen(cmd,shell=True,bufsize=0,stdout=PIPE,stderr=STDOUT)
     output = process.communicate()[0]
 
