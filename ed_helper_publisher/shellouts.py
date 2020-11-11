@@ -16,11 +16,17 @@
 import json
 import string
 import os
+import random
 from subprocess import Popen
 from subprocess import PIPE
 from subprocess import STDOUT 
 from ed_helper_publisher.loggerly import ElasticDevLogger   
-#from ed_helper_publisher.utilities import id_generator
+
+def id_generator(size=6,chars=string.ascii_uppercase+string.digits):
+
+    '''generates id randomly'''
+
+    return ''.join(random.choice(chars) for x in range(size))
 
 def mkdir(directory):
     '''uses the shell to make a directory.'''
