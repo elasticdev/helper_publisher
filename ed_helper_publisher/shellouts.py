@@ -105,21 +105,49 @@ def execute3(cmd,print_error=True,**kwargs):
         return results
 
     if output_to_json and not isinstance(output,dict):
+        print '0'*32
+        print '0'*32
+        print '0'*32
         try:
             output = json.loads(output)
         except:
+            print '1'*32
+            print '1'*32
+            print '1'*32
+            print '1'*32
             logger.warn("Could not convert output to json")
 
+    print '2'*32
+    print '2'*32
+    print output
+    print '2'*32
+    print '2'*32
     results = {"status":True}
     results["output"] = output
 
+    # Testingyoyo
+    print '3'*32
+    print '3'*32
+    print '3'*32
+
     if output_queue: 
+        print '4'*32
+        print '4'*32
         logger.debug("Attempting to place results in the output_queue")
         try:
+            print '5'*32
+            print '5'*32
             output_queue.put(results)
         except:
+            print '6'*32
+            print '6'*32
             logger.error("Could not append the results to the output_queue")
 
+    print '7'*32
+    print '7'*32
+    print '7'*32
+    print '7'*32
+    print results
     return results
 
 def execute4(cmd,print_error=True,**kwargs):
