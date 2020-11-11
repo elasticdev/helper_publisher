@@ -150,6 +150,9 @@ def execute3(cmd,print_error=True,**kwargs):
     print results
     return results
 
+def execute2(cmd,print_error=True,**kwargs):
+    return execute4(cmd,print_error=True,**kwargs)
+
 def execute4(cmd,print_error=True,**kwargs):
 
     logger = ElasticDevLogger("execute3")
