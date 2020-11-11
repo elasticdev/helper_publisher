@@ -20,7 +20,7 @@ from subprocess import Popen
 from subprocess import PIPE
 from subprocess import STDOUT 
 from ed_helper_publisher.loggerly import ElasticDevLogger   
-from ed_helper_publisher.utilities import id_generator
+#from ed_helper_publisher.utilities import id_generator
 
 def mkdir(directory):
     '''uses the shell to make a directory.'''
