@@ -131,7 +131,7 @@ def execute4(cmd,print_error=True,**kwargs):
     exit_file = "/tmp/{}".format(id_generator(10,chars=string.ascii_lowercase))
     logfile = "/tmp/{}".format(id_generator(10,chars=string.ascii_lowercase))
 
-    cmd = '({} 2>&1 ; echo $? > {}) | tee -a {}; exit `cat {}`'.format(exit_file,logfile,exit_file)
+    cmd = '({} 2>&1 ; echo $? > {}) | tee -a {}; exit `cat {}`'.format(cmd,exit_file,logfile,exit_file)
 
     exitcode = os.system(cmd)
 
