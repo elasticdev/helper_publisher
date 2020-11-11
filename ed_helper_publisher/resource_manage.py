@@ -95,6 +95,7 @@ class ResourceCmdHelper(object):
         return execute3(cmd,**kwargs)
 
     def execute2(self,cmd,**kwargs):
+        return execute3(cmd,**kwargs)
         return execute4(cmd,**kwargs)
 
     def execute4(self,cmd,**kwargs):
