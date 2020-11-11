@@ -103,6 +103,7 @@ def get_hash(data):
 
     return calculated_hash
 
+# dup 4523452346
 def id_generator(size=6,chars=string.ascii_uppercase+string.digits):
 
     '''generates id randomly'''
