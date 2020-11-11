@@ -19,6 +19,7 @@ from ed_helper_publisher.utilities import print_json
 from ed_helper_publisher.utilities import convert_str2json
 from ed_helper_publisher.utilities import get_hash
 from ed_helper_publisher.shellouts import execute3
+from ed_helper_publisher.shellouts import execute4
 
 class ResourceCmdHelper(object):
 
@@ -91,8 +92,10 @@ class ResourceCmdHelper(object):
         exit(0)
 
     def execute(self,cmd,**kwargs):
-        results = execute3(cmd,**kwargs)
-        return results
+        return execute3(cmd,**kwargs)
+
+    def execute4(self,cmd,**kwargs):
+        return execute4(cmd,**kwargs)
 
     def cmd_failed(self,**kwargs):
          

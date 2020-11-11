@@ -14,11 +14,13 @@
 
 #import contextlib
 import json
+import string
 import os
 from subprocess import Popen
 from subprocess import PIPE
 from subprocess import STDOUT 
 from ed_helper_publisher.loggerly import ElasticDevLogger   
+from ed_helper_publisher.utilities import id_generator
 
 def mkdir(directory):
     '''uses the shell to make a directory.'''
@@ -111,5 +113,40 @@ def execute3(cmd,print_error=True,**kwargs):
             output_queue.put(results)
         except:
             logger.error("Could not append the results to the output_queue")
+
+    return results
+
+def execute4(cmd,print_error=True,**kwargs):
+
+    logger = ElasticDevLogger("execute3")
+    output_to_json = kwargs.get("output_to_json",True)
+    #cmd = 'cd {}; (./run_order 2>&1 ; echo $? > {}) | tee -a {}; exit `cat {}`'.format(link,exit_file,logfile,exit_file)
+
+    exit_file = "/tmp/{}".format(id_generator(10,chars=string.ascii_lowercase))
+    logfile = "/tmp/{}".format(id_generator(10,chars=string.ascii_lowercase))
+
+    cmd = '({} 2>&1 ; echo $? > {}) | tee -a {}; exit `cat {}`'.format(exit_file,logfile,exit_file)
+
+    exitcode = os.system(cmd)
+
+    status = None
+    if exitcode == 0: status = True
+
+    output = open(logfile,"r").readlines()
+
+    if output_to_json and not isinstance(output,dict):
+        try:
+            output = json.loads(output)
+        except:
+            logger.warn("Could not convert output to json")
+
+    results = { "output":output,
+                "status":status }
+
+    exit_error = kwargs.get("exit_error")
+
+    if exit_error and not status:
+        print output
+        exit(exitcode)
 
     return results
