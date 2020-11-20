@@ -35,7 +35,7 @@ class ResourceCmdHelper(object):
 
     def add_output(self,cmd=None,remove_empty=None,**results):
 
-        #_outputs = self._convert_to_json(results["output"])
+        #_outputs = self.convert_to_json(results["output"])
         #if not isinstance(_outputs,dict): return 
 
         try:
@@ -51,7 +51,7 @@ class ResourceCmdHelper(object):
             if remove_empty and not _output: continue
             self.output.extend(_output)
 
-    def _convert_to_json(self,output):
+    def convert_to_json(self,output):
 
         if isinstance(output,dict): return output
 
@@ -67,7 +67,7 @@ class ResourceCmdHelper(object):
 
     def print_output(self,**kwargs):
 
-        output = self._convert_to_json(kwargs["output"])
+        output = self.convert_to_json(kwargs["output"])
 
         print '_ed_begin_output'
         print output
@@ -79,7 +79,7 @@ class ResourceCmdHelper(object):
         output_to_json = kwargs.get("output_to_json",True)
         output = kwargs.get("output")
         if not output: output = "There is no output from the command"
-        if output_to_json: output = self._convert_to_json(output)
+        if output_to_json: output = self.convert_to_json(output)
 
         print ''
         print ''
