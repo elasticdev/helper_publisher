@@ -1,4 +1,4 @@
-from ed_helper_publisher.utilities import convert_str2json
+from ed_helper_publisher.utilities import to_json
 
 def convert_ed_output_to_values(output):
 
@@ -26,7 +26,7 @@ def convert_ed_output_to_values(output):
         obj_return = values[0]
 
     try:
-        obj_return = convert_str2json(obj_return)
+        obj_return = to_json(obj_return)
     except:
         print 'ERROR: Cannot convert to json'
         exit(9)

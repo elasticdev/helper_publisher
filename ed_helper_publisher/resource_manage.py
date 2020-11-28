@@ -16,7 +16,7 @@ import os
 
 from ed_helper_publisher.loggerly import ElasticDevLogger
 from ed_helper_publisher.utilities import print_json
-from ed_helper_publisher.utilities import convert_str2json
+from ed_helper_publisher.utilities import to_json
 from ed_helper_publisher.utilities import get_hash
 from ed_helper_publisher.shellouts import execute3
 from ed_helper_publisher.shellouts import execute4
@@ -39,7 +39,7 @@ class ResourceCmdHelper(object):
         #if not isinstance(_outputs,dict): return 
 
         try:
-            _outputs = convert_str2json(results["output"])
+            _outputs = to_json(results["output"])
         except:
             _outputs = None
 
@@ -56,7 +56,7 @@ class ResourceCmdHelper(object):
         if isinstance(output,dict): return output
 
         try:
-            _output = convert_str2json(output)
+            _output = to_json(output)
             if not _output: raise
             if not isinstance(_output,dict): raise
             output = _output
@@ -64,6 +64,9 @@ class ResourceCmdHelper(object):
             self.logger.warn("Could not convert output to json")
 
         return output
+
+    def to_json(self,output):
+        return self.convert_to_json(output)
 
     def print_output(self,**kwargs):
 
@@ -116,7 +119,7 @@ class ResourceCmdHelper(object):
         if kwargs.get("inputargs"):
             self.inputargs = kwargs["inputargs"]
         elif kwargs.get("json_input"):
-            self.inputargs = convert_str2json(kwargs["json_input"],exit_error=True)
+            self.inputargs = to_json(kwargs["json_input"],exit_error=True)
         elif kwargs.get("set_env_vars"):
             self.parse_set_env_vars(kwargs["set_env_vars"])
 
