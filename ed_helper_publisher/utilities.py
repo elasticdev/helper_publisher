@@ -40,12 +40,6 @@ def print_json(results):
 def nice_json(results):
     return json.dumps(results,sort_keys=True,cls=DateTimeJsonEncoder,indent=4)
 
-def to_list(_object,split_char=None,exit_error=None):
-    return convert_str2list(_object,split_char=split_char,exit_error=exit_error)
-
-def to_json(_object,exit_error=None):
-    return convert_str2json(_object,exit_error=exit_error)
-
 def convert_str2list(_object,split_char=None,exit_error=None):
 
     if split_char:
@@ -79,6 +73,12 @@ def convert_str2json(_object,exit_error=None):
         return False
 
     return _object
+
+def to_list(_object,split_char=None,exit_error=None):
+    return convert_str2list(_object,split_char=split_char,exit_error=exit_error)
+
+def to_json(_object,exit_error=None):
+    return convert_str2json(_object,exit_error=exit_error)
 
 def shellout_hash(string):
 
