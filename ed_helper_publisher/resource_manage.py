@@ -128,19 +128,28 @@ class ResourceCmdHelper(object):
             self.inputargs[_k] = False
 
     # This can be replaced by the inheriting class
-    def parse_set_env_vars(self,set_env_vars):
+    def parse_set_env_vars(self,set_env_vars,upper_case=True):
 
         self.inputargs = {}
 
         for env_var in set_env_vars:
-            if not os.environ.get(env_var.upper()): continue
-            if os.environ.get(env_var.upper()) == "None": continue
 
-            if os.environ.get(env_var.upper()) == "False": 
-                self.inputargs[env_var] = False
+            if upper_case:
+                _var = env_var.upper()
+            else:
+                _var = env_var
+
+            if not os.environ.get(_var): continue
+            if os.environ.get(_var) == "None": continue
+
+            if os.environ.get(_var) == "False": 
+                self.inputargs[_var] = False
                 continue
 
-            self.inputargs[env_var] = os.environ[env_var.upper()]
+            if upper_case:
+                self.inputargs[env_var] = os.environ[_var]
+            else:
+                self.inputargs[_var] = os.environ[_var]
 
     def check_required_inputargs(self,**kwargs):
 
