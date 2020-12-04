@@ -128,7 +128,7 @@ class ResourceCmdHelper(object):
             self.inputargs[_k] = False
 
     # This can be replaced by the inheriting class
-    def parse_set_env_vars(self,set_env_vars,upper_case):
+    def parse_set_env_vars(self,set_env_vars,upper_case=True):
 
         self.inputargs = {}
 
