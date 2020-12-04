@@ -121,14 +121,14 @@ class ResourceCmdHelper(object):
         elif kwargs.get("json_input"):
             self.inputargs = to_json(kwargs["json_input"],exit_error=True)
         elif kwargs.get("set_env_vars"):
-            self.parse_set_env_vars(kwargs["set_env_vars"])
+            self.parse_set_env_vars(kwargs["set_env_vars"],upper_case=kwargs.get("upper_case",True))
 
         for _k,_v in self.inputargs.iteritems():
             if _v != "False": continue
             self.inputargs[_k] = False
 
     # This can be replaced by the inheriting class
-    def parse_set_env_vars(self,set_env_vars,upper_case=True):
+    def parse_set_env_vars(self,set_env_vars,upper_case):
 
         self.inputargs = {}
 
