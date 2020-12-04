@@ -69,11 +69,11 @@ class DoCli(ResourceCmdHelper):
         with open(self.file_config_loc, 'w') as _file:
             _file.write(json.dumps(self.file_config,indent=4))
 
-    def parse_set_env_vars(self,set_env_vars):
+    def parse_set_env_vars(self,env_vars,upper_case=True):
 
         self.inputargs = {}
 
-        for env_var in set_env_vars:
+        for env_var in env_vars:
 
             if not os.environ.get(env_var.upper()): continue
 

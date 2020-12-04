@@ -114,25 +114,25 @@ class ResourceCmdHelper(object):
         self.logger.error(message=failed_message)
         exit(9)
 
-    def set_inputargs(self,**kwargs):
+    def set_inputargs(self,upper_case=True,**kwargs):
 
         if kwargs.get("inputargs"):
             self.inputargs = kwargs["inputargs"]
         elif kwargs.get("json_input"):
             self.inputargs = to_json(kwargs["json_input"],exit_error=True)
         elif kwargs.get("set_env_vars"):
-            self.parse_set_env_vars(kwargs["set_env_vars"],upper_case=kwargs.get("upper_case",True))
+            self.parse_set_env_vars(kwargs["set_env_vars"],upper_case=upper_case)
 
         for _k,_v in self.inputargs.iteritems():
             if _v != "False": continue
             self.inputargs[_k] = False
 
     # This can be replaced by the inheriting class
-    def parse_set_env_vars(self,set_env_vars,upper_case=True):
+    def parse_set_env_vars(self,env_vars,upper_case=True):
 
         self.inputargs = {}
 
-        for env_var in set_env_vars:
+        for env_var in env_vars:
 
             if upper_case:
                 _var = env_var.upper()
