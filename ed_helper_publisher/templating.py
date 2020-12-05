@@ -16,29 +16,17 @@ import os
 import re
 from time import sleep
 
-def list_template_files(rootdir,split_dir="_ed_templates"):
+def list_template_files(rootdir,split_dir=None):
 
     '''
     list files with .ja2 suffix for templating
     '''
 
-    print ''
-    print ''
-    print ''
-    print ''
-    print rootdir
-    print rootdir
-    print rootdir
-    print rootdir
-    print split_dir
-    print split_dir
-    print split_dir
-    print ''
-    print ''
-    print ''
-    print ''
-    sleep(60)
-    raise
+    if not split_dir: 
+        try:
+            split_dir = os.path.basename(rootdir)
+        except:
+            split_dir = "_ed_template"
 
     if not os.path.exists(rootdir): return
 
