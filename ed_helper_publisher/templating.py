@@ -21,6 +21,22 @@ def list_template_files(rootdir,split_dir="_ed_templates"):
     list files with .ja2 suffix for templating
     '''
 
+    print ''
+    print ''
+    print ''
+    print ''
+    print rootdir
+    print rootdir
+    print rootdir
+    print rootdir
+    print split_dir
+    print split_dir
+    print split_dir
+    print ''
+    print ''
+    print ''
+    print ''
+
     if not os.path.exists(rootdir): return
 
     # get a base file lists
