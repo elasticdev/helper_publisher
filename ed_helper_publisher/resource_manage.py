@@ -151,6 +151,23 @@ class ResourceCmdHelper(object):
         # this can be overided by inherited class
         self.shelloutconfig = "elasticdev:::{}::resource_wrapper".format(self.app_name)
 
+    def add_resource_tags(self,resource):
+
+        tags = self.get_env_var("RESOURCE_TAGS")
+        if not tags: return
+
+        tags = [ tag.strip() for tag in tags.split(",") ]
+        if not isinstance(resource.get("tags"),list): resource["tags"] = []
+        resource["tags"].extend(tags)
+
+        if self.app_name: 
+            resource["tags"].append(self.app_name)
+
+        # remove duplicates
+        resource["tags"] = list(set(resource["tags"]))
+ 
+        return resource
+
     def get_hash(self,_object):
         return get_hash(_object)
 
