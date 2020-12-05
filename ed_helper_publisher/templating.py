@@ -15,7 +15,7 @@
 import os
 import re
 
-def list_template_files(rootdir,split_dir="ed_templates"):
+def list_template_files(rootdir,split_dir="_ed_templates"):
 
     '''
     list files with .ja2 suffix for templating
