@@ -13,6 +13,7 @@
 #Written by Gary Leong  <gary@elasticdev.io, May 11,2019
 
 import os
+import jinja2
 
 from ed_helper_publisher.loggerly import ElasticDevLogger
 from ed_helper_publisher.utilities import print_json
@@ -21,6 +22,7 @@ from ed_helper_publisher.utilities import get_hash
 from ed_helper_publisher.shellouts import execute3
 from ed_helper_publisher.shellouts import execute4
 from ed_helper_publisher.utilities import id_generator
+from ed_helper_publisher.templating import list_template_files
 
 # Testingyoyo
 class MissingEnvironmentVariable(Exception):
@@ -41,6 +43,14 @@ class ResourceCmdHelper(object):
 
         self._set_stateful_params(**kwargs)
         self._set_app_params(**kwargs)
+
+        # by default, we set template_dir relative to the app_dir
+        # this can be over written by the inheriting class
+        if hasattr(self,"app_dir") and self.app_dir:
+            self.template_dir = "{}/_ed_templates".format(self.app_dir)
+        else:
+            self.template_dir = None
+
         self._set_docker_settings(**kwargs)
         self._set_destroy_env_vars(**kwargs)
 
@@ -66,27 +76,27 @@ class ResourceCmdHelper(object):
         elif self.app_name == "ansible":
             self.os_env_prefix = "ANS_VAR"
 
-    # referenced and related to: dup dhdskyeucnfhrt2634521 
-    def get_env_var(self,variable,default=None,must_exists=None):
-    
-        _value = os.environ.get(variable)
-        if _value: return _value
+    def _get_template_vars(self):
 
-        if self.os_env_prefix: 
+        if os.environ.get("ED_TEMPLATE_VARS"):
+            return [ _var.strip() for _var in os.environ.get("ED_TEMPLATE_VARS").split(",") ]
 
-            _value = os.environ.get("{}_{}".format(self.os_env_prefix,variable))
-            if _value: return _value
-    
-            _value = os.environ.get("{}_{}".format(self.os_env_prefix,variable.lower()))
-            if _value: return _value
-    
-            _value = os.environ.get("{}_{}".format(self.os_env_prefix,variable.upper()))
-            if _value: return _value
-    
-        if default: return default
-    
-        if not must_exists: return
-        raise MissingEnvironmentVariable("{} does not exist".format(variable))
+        if not self.app_name: return 
+
+        _key = "{}_TEMPLATE_VARS".format(self.app_name)
+
+        if os.environ.get(_key):
+            return [ _var.strip() for _var in os.environ.get(_key).split(",") ]
+
+        if not self.os_env_prefix: return
+
+        # get template_vars e.g. "ANS_VAR_<var>"
+        _template_vars = []
+        for _var in os.environ.keys():
+            if self.os_env_prefix not in _var: continue
+            _template_vars.append(_var)
+
+        return _template_vars
 
     def _set_destroy_env_vars(self,**kwargs):
 
@@ -127,6 +137,7 @@ class ResourceCmdHelper(object):
 
         # This can be overwritten - either you run from the share directory
         # or the run_dir + app/working_subdir
+        # ref 453646
         self.app_dir = os.path.join(self.share_dir,self.stateful_id)
 
     def _set_app_params(self,**kwargs):
@@ -144,12 +155,102 @@ class ResourceCmdHelper(object):
 
         if self.working_subdir[0] == "/": self.working_subdir = self.working_subdir[1:]
 
-        # set app_dir
+        # ref 453646
+        # overide the app_dir set from _set_stateful_params
         # e.g. /var/tmp/share/ABC123/var/tmp/ansible
         self.app_dir = os.path.join(self.run_dir,self.working_subdir)
 
         # this can be overided by inherited class
         self.shelloutconfig = "elasticdev:::{}::resource_wrapper".format(self.app_name)
+
+    # referenced and related to: dup dhdskyeucnfhrt2634521 
+    def get_env_var(self,variable,default=None,must_exists=None):
+    
+        _value = os.environ.get(variable)
+        if _value: return _value
+
+        if self.os_env_prefix: 
+
+            _value = os.environ.get("{}_{}".format(self.os_env_prefix,variable))
+            if _value: return _value
+    
+            _value = os.environ.get("{}_{}".format(self.os_env_prefix,variable.lower()))
+            if _value: return _value
+    
+            _value = os.environ.get("{}_{}".format(self.os_env_prefix,variable.upper()))
+            if _value: return _value
+    
+        if default: return default
+    
+        if not must_exists: return
+        raise MissingEnvironmentVariable("{} does not exist".format(variable))
+
+    def print_json(self,values):
+        print_json(values)
+
+    def templify(self,**kwargs):
+
+        _template_vars = self._get_template_vars()
+
+        if not _template_vars:
+            self.logger.warn("ED_TEMPLATE_VARS not set - skipping templating")
+            return
+
+        if not self.template_dir: 
+            self.logger.warn("template_dir not set (None) - skipping templating")
+            return
+
+        template_files = list_template_files(self.template_dir)
+        if not template_files: 
+            self.logger.warn("template_files is empty - skipping templating")
+            return
+
+        for _file_stats in template_files:
+
+            template_filepath = _file_stats["file"]
+            file_dir = os.path.join(self.app_dir,_file_stats["directory"])
+            file_path = os.path.join(self.app_dir,_file_stats["directory"],_file_stats["filename"].split(".ja2")[0])
+
+            if not os.path.exists(file_dir): 
+                os.system("mkdir -p {}".format(file_dir))
+
+            if os.path.exists(file_path) and not self.clobber:
+                self.logger.warn("destination templated file already exists at {} - skipping templifying of it".format(file_path))
+                continue
+
+            self.logger.debug("creating templated file file {} from {}".format(file_path,template_filepath))
+
+            templateVars = {}
+
+            if self.os_env_prefix:
+                _split_char = "{}_".format(self.os_env_prefix)
+            else:
+                _split_char = None
+
+            for _var in _template_vars:
+
+                if _split_char and _split_char in _var:
+                    key = _var.strip().split(_split_char)[-1]
+                else:
+                    key = _var.strip().upper()
+
+                var = _var.strip()
+
+                if not os.environ.get(var): 
+                    self.logger.warn("cannot find {} to templify".format(var))
+                    continue
+
+                value = os.environ[var].replace("'",'"')
+                templateVars[key] = value
+                templateVars[key.upper()] = value
+
+            templateLoader = jinja2.FileSystemLoader(searchpath="/")
+            templateEnv = jinja2.Environment(loader=templateLoader)
+            template = templateEnv.get_template(template_filepath)
+            outputText = template.render( templateVars )
+            writefile = open(file_path,"wb")
+            writefile.write(outputText)
+            writefile.close()
 
     def add_resource_tags(self,resource):
 

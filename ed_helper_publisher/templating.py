@@ -26,7 +26,7 @@ def list_template_files(rootdir,split_dir=None):
         try:
             split_dir = os.path.basename(rootdir)
         except:
-            split_dir = "_ed_template"
+            split_dir = "_ed_templates"
 
     if not os.path.exists(rootdir): return
 
