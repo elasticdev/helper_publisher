@@ -44,6 +44,8 @@ class ResourceCmdHelper(object):
         self._set_docker_settings(**kwargs)
         self._set_destroy_env_vars(**kwargs)
 
+        self._set_os_env_prefix(**kwargs)
+
         self.output = []
 
         # e.g.
@@ -51,6 +53,40 @@ class ResourceCmdHelper(object):
         # share_dir - share directory with docker or execution container - e.g. /var/tmp/share
         # run_share_dir - share directory with stateful_id - e.g. /var/tmp/share/ABC123
         # app_dir - app directory is run_dir + working directory - e.g. /tmp/ondisktmp/abc123/var/tmp/ansible
+
+    def _set_os_env_prefix(self,**kwargs):
+
+        self.os_env_prefix = kwargs.get("os_env_prefix")
+        if self.os_env_prefix: return
+
+        if not self.app_name: return
+
+        if self.app_name == "terraform":
+            self.os_env_prefix = "TF_VAR"
+        elif self.app_name == "ansible":
+            self.os_env_prefix = "ANS_VAR"
+
+    # referenced and related to: dup dhdskyeucnfhrt2634521 
+    def get_env_var(self,variable,default=None,must_exists=None):
+    
+        _value = os.environ.get(variable)
+        if _value: return _value
+
+        if self.os_env_prefix: 
+
+            _value = os.environ.get("{}_{}".format(self.os_env_prefix,variable))
+            if _value: return _value
+    
+            _value = os.environ.get("{}_{}".format(self.os_env_prefix,variable.lower()))
+            if _value: return _value
+    
+            _value = os.environ.get("{}_{}".format(self.os_env_prefix,variable.upper()))
+            if _value: return _value
+    
+        if default: return default
+    
+        if not must_exists: return
+        raise MissingEnvironmentVariable("{} does not exist".format(variable))
 
     def _set_destroy_env_vars(self,**kwargs):
 
@@ -65,12 +101,14 @@ class ResourceCmdHelper(object):
 
         self.use_docker = os.environ.get("USE_DOCKER",True)
 
+        if not self.app_name: return
+
         self.docker_image = os.environ.get("DOCKER_EXEC_ENV",
-                                           default="elasticdev/{}-run-env".format(self.app_name))
+                                           "elasticdev/{}-run-env".format(self.app_name))
 
     def _set_stateful_params(self,**kwargs):
      
-        self.share_dir = os.environ.get("SHARE_DIR",default="/var/tmp/share")
+        self.share_dir = os.environ.get("SHARE_DIR","/var/tmp/share")
         self.stateful_id = os.environ.get("STATEFUL_ID")
         self.stateful_dir = os.environ.get("STATEFUL_DIR")
 
@@ -95,18 +133,16 @@ class ResourceCmdHelper(object):
 
         self.working_subdir = kwargs.get("working_subdir")
 
-        app_name = kwargs.get("app_name").lower()
-        if not app_name: return 
+        self.app_name = kwargs.get("app_name")
+        if not self.app_name: return 
 
         # below app_name must be defined
         # set working_subdir
         if not self.working_subdir: 
-            self.working_subdir = os.environ.get("{}_DIR".format(app_name.upper()),
-                                                 default="/var/tmp/{}".format(app_name))
+            self.working_subdir = os.environ.get("{}_DIR".format(self.app_name.upper()),
+                                                 "/var/tmp/{}".format(self.app_name))
 
         if self.working_subdir[0] == "/": self.working_subdir = self.working_subdir[1:]
-
-        self.app_name = app_name
 
         # set app_dir
         # e.g. /var/tmp/share/ABC123/var/tmp/ansible
