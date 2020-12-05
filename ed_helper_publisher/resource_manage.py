@@ -20,6 +20,11 @@ from ed_helper_publisher.utilities import to_json
 from ed_helper_publisher.utilities import get_hash
 from ed_helper_publisher.shellouts import execute3
 from ed_helper_publisher.shellouts import execute4
+from ed_helper_publisher.utilities import id_generator
+
+# Testingyoyo
+class MissingEnvironmentVariable(Exception):
+    pass
 
 class ResourceCmdHelper(object):
 
@@ -28,7 +33,87 @@ class ResourceCmdHelper(object):
         self.classname = 'ResourceCmdHelper'
         self.logger = ElasticDevLogger(self.classname)
         self.logger.debug("Instantiating %s" % self.classname)
+
+        self.run_dir = os.getcwd()
+
+        # must exists as environmental variables
+        self.must_exists = kwargs.get("must_exists",[])
+
+        self._set_stateful_params(**kwargs)
+        self._set_app_params(**kwargs)
+        self._set_docker_settings(**kwargs)
+        self._set_destroy_env_vars(**kwargs)
+
         self.output = []
+
+        # e.g.
+        # run_dir - current run directory - e.g. /tmp/ondisktmp/abc123/
+        # share_dir - share directory with docker or execution container - e.g. /var/tmp/share
+        # run_share_dir - share directory with stateful_id - e.g. /var/tmp/share/ABC123
+        # app_dir - app directory is run_dir + working directory - e.g. /tmp/ondisktmp/abc123/var/tmp/ansible
+
+    def _set_destroy_env_vars(self,**kwargs):
+
+        try:
+            self.destroy_env_vars = eval(os.environ.get("DESTROY_ENV_VARS"))
+        except:
+            self.destroy_env_vars = None
+
+        self.destroy_execgroup = os.environ.get("DESTROY_EXECGROUP")
+
+    def _set_docker_settings(self,**kwargs):
+
+        self.use_docker = os.environ.get("USE_DOCKER",True)
+
+        self.docker_image = os.environ.get("DOCKER_EXEC_ENV",
+                                           default="elasticdev/{}-run-env".format(self.app_name))
+
+    def _set_stateful_params(self,**kwargs):
+     
+        self.share_dir = os.environ.get("SHARE_DIR",default="/var/tmp/share")
+        self.stateful_id = os.environ.get("STATEFUL_ID")
+        self.stateful_dir = os.environ.get("STATEFUL_DIR")
+
+        if not self.stateful_id and 'stateful_id' in self.must_exists: 
+            raise MissingEnvironmentVariable("{} does not exist".format("STATEFUL_ID"))
+
+        if not self.stateful_id: self.stateful_id = id_generator(20)
+
+        # run_share_dir
+        self.run_share_dir = os.path.join(self.share_dir,self.stateful_id)
+
+        #if self.stateful_id:
+        #    self.run_share_dir = os.path.join(self.share_dir,self.stateful_id)
+        #else:
+        #    self.run_share_dir = self.share_dir
+
+        # This can be overwritten - either you run from the share directory
+        # or the run_dir + app/working_subdir
+        self.app_dir = os.path.join(self.share_dir,self.stateful_id)
+
+    def _set_app_params(self,**kwargs):
+
+        self.working_subdir = kwargs.get("working_subdir")
+
+        app_name = kwargs.get("app_name").lower()
+        if not app_name: return 
+
+        # below app_name must be defined
+        # set working_subdir
+        if not self.working_subdir: 
+            self.working_subdir = os.environ.get("{}_DIR".format(app_name.upper()),
+                                                 default="/var/tmp/{}".format(app_name))
+
+        if self.working_subdir[0] == "/": self.working_subdir = self.working_subdir[1:]
+
+        self.app_name = app_name
+
+        # set app_dir
+        # e.g. /var/tmp/share/ABC123/var/tmp/ansible
+        self.app_dir = os.path.join(self.run_dir,self.working_subdir)
+
+        # this can be overided by inherited class
+        self.shelloutconfig = "elasticdev:::{}::resource_wrapper".format(self.app_name)
 
     def get_hash(self,_object):
         return get_hash(_object)
