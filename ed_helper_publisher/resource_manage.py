@@ -32,6 +32,14 @@ class ResourceCmdHelper(object):
 
     def __init__(self,**kwargs):
 
+        '''
+        # e.g.
+        # run_dir - current run directory - e.g. /tmp/ondisktmp/abc123/
+        # share_dir - share directory with docker or execution container - e.g. /var/tmp/share
+        # run_share_dir - share directory with stateful_id - e.g. /var/tmp/share/ABC123
+        # app_dir - app directory is run_dir + working directory - e.g. /tmp/ondisktmp/abc123/var/tmp/ansible
+        '''
+
         self.classname = 'ResourceCmdHelper'
         self.logger = ElasticDevLogger(self.classname)
         self.logger.debug("Instantiating %s" % self.classname)
@@ -57,12 +65,6 @@ class ResourceCmdHelper(object):
         self._set_os_env_prefix(**kwargs)
 
         self.output = []
-
-        # e.g.
-        # run_dir - current run directory - e.g. /tmp/ondisktmp/abc123/
-        # share_dir - share directory with docker or execution container - e.g. /var/tmp/share
-        # run_share_dir - share directory with stateful_id - e.g. /var/tmp/share/ABC123
-        # app_dir - app directory is run_dir + working directory - e.g. /tmp/ondisktmp/abc123/var/tmp/ansible
 
     def _set_os_env_prefix(self,**kwargs):
 
