@@ -36,6 +36,7 @@ def list_template_files(rootdir,split_dir="_ed_templates"):
     print ''
     print ''
     print ''
+    raise
 
     if not os.path.exists(rootdir): return
 
