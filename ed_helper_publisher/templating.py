@@ -14,6 +14,7 @@
 
 import os
 import re
+from time import sleep
 
 def list_template_files(rootdir,split_dir="_ed_templates"):
 
@@ -36,6 +37,7 @@ def list_template_files(rootdir,split_dir="_ed_templates"):
     print ''
     print ''
     print ''
+    sleep(60)
     raise
 
     if not os.path.exists(rootdir): return
