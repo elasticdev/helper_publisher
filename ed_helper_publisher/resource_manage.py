@@ -235,9 +235,9 @@ class ResourceCmdHelper(object):
             for _var in _template_vars:
 
                 if _split_char and _split_char in _var:
-                    key = _var.strip().split(_split_char)[-1]
+                    _mapped_key = _var.strip().split(_split_char)[-1]
                 else:
-                    key = _var.strip().upper()
+                    _mapped_key = _var.strip().upper()
 
                 var = _var.strip()
 
@@ -246,8 +246,10 @@ class ResourceCmdHelper(object):
                     continue
 
                 value = os.environ[var].replace("'",'"')
-                templateVars[key] = value
-                templateVars[key.upper()] = value
+
+                # include both uppercase and regular keys
+                templateVars[_mapped_key] = value
+                templateVars[_mapped_key.upper()] = value
 
             templateLoader = jinja2.FileSystemLoader(searchpath="/")
             templateEnv = jinja2.Environment(loader=templateLoader)
@@ -256,6 +258,108 @@ class ResourceCmdHelper(object):
             writefile = open(file_path,"wb")
             writefile.write(outputText)
             writefile.close()
+
+    def write_key_to_file(self,**kwargs):
+
+        '''
+        writing the value of a key in inputargs 
+        into a file
+        '''
+
+        key = kwargs["key"]
+        filepath = kwargs["filepath"]
+        split_char = kwargs.get("split_char")
+        add_return = kwargs.get("add_return",True)
+        copy_to_share = kwargs.get("copy_to_share")
+
+        try:
+            permission = str(int(kwargs.get("permission")))
+        except:
+            permission = "400"
+
+        if not self.inputargs.get(key): return
+
+        _value = self.inputargs[key]
+
+        if split_char is None: 
+            _lines = _value
+        elif split_char == "return":
+            _lines = _value.split('\\n')
+        else:
+            _lines = _value
+
+        with open(filepath,"wb") as wfile:
+            for _line in _lines:
+                wfile.write(_line)
+                if not add_return: continue
+                wfile.write("\n")
+
+        if permission: 
+            os.system("chmod {} {}".format(permission,filepath))
+
+        if copy_to_share: 
+            self.copy_file_to_share(filepath)
+
+        return filepath
+
+    def copy_file_to_share(self,srcfile,dst_subdir=None):
+
+        if not self.run_share_dir: 
+            self.logger.debug("run_share_dir not defined - skipping sync-ing ...")
+            return
+            
+        cmds = []
+        _dirname = os.path.dirname(self.run_share_dir)
+        if not os.path.exists(_dirname): cmds.append("mkdir -p {}".format(_dirname))
+
+        _file_subpath = os.path.basename(srcfile)
+        if dst_subdir: _file_subpath = "{}/{}".format(dst_subdir,_file_subpath)
+
+        dstfile = "{}/{}".format(self.run_share_dir,_file_subpath)
+
+        cmds.append("cp -rp {} {}".format(srcfile,dstfile))
+
+        for cmd in cmds:
+            self.execute(cmd,output_to_json=False,exit_error=True)
+
+    def sync_to_share(self,rsync_args=None,exclude_existing=None):
+
+        if not self.run_share_dir: 
+            self.logger.debug("run_share_dir not defined - skipping sync-ing ...")
+            return
+            
+        cmds = []
+        _dirname = os.path.dirname(self.run_share_dir)
+        if not os.path.exists(_dirname): cmds.append("mkdir -p {}".format(_dirname))
+
+        if not rsync_args: 
+            rsync_args = "-avug"
+            if exclude_existing: rsync_args = '{} --ignore-existing'.format(rsync_args)
+        #rsync -h -v -r -P -t source target
+
+        self.logger.debug("rsync -avug {}/ {}".format(rsync_args,
+                                                      self.app_dir,
+                                                      self.run_share_dir))
+
+        cmds.append("rsync -avug {}/ {}".format(self.app_dir,self.run_share_dir))
+
+        for cmd in cmds:
+            self.execute(cmd,output_to_json=False,exit_error=True)
+
+        self.logger.debug("Sync-ed to run share dir {}".format(self.run_share_dir))
+
+    def remap_app_vars(self):
+
+        if not self.os_env_prefix: return
+
+        _split_char = "{}_".format(self.os_env_prefix)
+
+        for _key,_value in self.inputargs.iteritems():
+            if _split_char not in _key: continue
+            _mapped_key = _key.split(_split_char)[-1]
+            self.logger.debug("mapped key {} value {}".format(_key,_value))
+            self.inputargs[_mapped_key] = _value
+            del self.inputargs[_key]
 
     def add_resource_tags(self,resource):
 
