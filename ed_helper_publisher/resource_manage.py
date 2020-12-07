@@ -196,6 +196,7 @@ class ResourceCmdHelper(object):
 
     def templify(self,**kwargs):
 
+        clobber = kwargs.get("clobber")
         _template_vars = self._get_template_vars(**kwargs)
 
         if not _template_vars: return
@@ -218,7 +219,7 @@ class ResourceCmdHelper(object):
             if not os.path.exists(file_dir): 
                 os.system("mkdir -p {}".format(file_dir))
 
-            if os.path.exists(file_path) and not self.clobber:
+            if os.path.exists(file_path) and not clobber:
                 self.logger.warn("destination templated file already exists at {} - skipping templifying of it".format(file_path))
                 continue
 
