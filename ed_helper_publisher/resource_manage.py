@@ -78,18 +78,19 @@ class ResourceCmdHelper(object):
         elif self.app_name == "ansible":
             self.os_env_prefix = "ANS_VAR"
 
-    def _get_template_vars(self):
+    def _get_template_vars(self,**kwargs):
 
-        if os.environ.get("ED_TEMPLATE_VARS"):
-            return [ _var.strip() for _var in os.environ.get("ED_TEMPLATE_VARS").split(",") ]
+        # if the app_template_vars is provided, we use it, otherwise, we
+        # assume it is the <APP_NAME>_TEMPLATE_VARS
+        _template_vars = kwargs.get("app_template_vars")
+        if not _template_vars: _template_vars = "{}_TEMPLATE_VARS".format(self.app_name)
+
+        if not os.environ.get(_template_vars.upper()): _template_vars = "ED_TEMPLATE_VARS"
+
+        if os.environ.get(_template_vars.upper()):
+            return [ _var.strip() for _var in os.environ.get(_template_vars.upper()).split(",") ]
 
         if not self.app_name: return 
-
-        _key = "{}_TEMPLATE_VARS".format(self.app_name)
-
-        if os.environ.get(_key):
-            return [ _var.strip() for _var in os.environ.get(_key).split(",") ]
-
         if not self.os_env_prefix: return
 
         # get template_vars e.g. "ANS_VAR_<var>"
@@ -97,6 +98,9 @@ class ResourceCmdHelper(object):
         for _var in os.environ.keys():
             if self.os_env_prefix not in _var: continue
             _template_vars.append(_var)
+
+        if not _template_vars: 
+            self.logger.warn("ED_TEMPLATE_VARS and <APP> template vars not set/given")
 
         return _template_vars
 
@@ -192,11 +196,9 @@ class ResourceCmdHelper(object):
 
     def templify(self,**kwargs):
 
-        _template_vars = self._get_template_vars()
+        _template_vars = self._get_template_vars(**kwargs)
 
-        if not _template_vars:
-            self.logger.warn("ED_TEMPLATE_VARS not set - skipping templating")
-            return
+        if not _template_vars: return
 
         if not self.template_dir: 
             self.logger.warn("template_dir not set (None) - skipping templating")
