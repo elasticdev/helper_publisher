@@ -351,7 +351,7 @@ class ResourceCmdHelper(object):
 
         cmd = "rsync {} {}/ {}".format(rsync_args,
                                        self.exec_dir,
-                                       self.run_share_dir))
+                                       self.run_share_dir)
 
         self.logger.debug(cmd)
         cmds.append(cmd)
