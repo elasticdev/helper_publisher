@@ -56,7 +56,8 @@ class ResourceCmdHelper(object):
         self.logger.debug("Instantiating %s" % self.classname)
 
         self.cwd = os.getcwd()
-        self.run_dir = os.getcwd()
+        self.exec_base_dir = os.environ.get("EXEC_BASE_DIR")
+        if not self.exec_base_dir: self.exec_base_dir = os.getcwd()
 
         # must exists as environmental variables
         self.must_exists = kwargs.get("must_exists",[])
