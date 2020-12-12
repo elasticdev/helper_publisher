@@ -33,17 +33,30 @@ class ResourceCmdHelper(object):
     def __init__(self,**kwargs):
 
         '''
-        # e.g.
+        # Testingyoyo - delete below
+        ###################################################33
+        # old format:
+        ###################################################33
         # run_dir - current run directory - e.g. /tmp/ondisktmp/abc123/
+        # working_subdir - e.g. var/tmp/ansible
+        # app_dir - app directory is run_dir + working directory - e.g. /tmp/ondisktmp/abc123/var/tmp/ansible
+
+        ###################################################33
+        # new format:
+        ###################################################33
+        # run_dir -> exec_base_dir - e.g. /tmp/ondisktmp/abc123
+        # app_dir -> exec_dir - e.g. /tmp/ondisktmp/abc123/var/tmp/ansible
+        # working_subdir -> app_dir - e.g. var/tmp/ansible
+
         # share_dir - share directory with docker or execution container - e.g. /var/tmp/share
         # run_share_dir - share directory with stateful_id - e.g. /var/tmp/share/ABC123
-        # app_dir - app directory is run_dir + working directory - e.g. /tmp/ondisktmp/abc123/var/tmp/ansible
         '''
 
         self.classname = 'ResourceCmdHelper'
         self.logger = ElasticDevLogger(self.classname)
         self.logger.debug("Instantiating %s" % self.classname)
 
+        self.cwd = os.getcwd()
         self.run_dir = os.getcwd()
 
         # must exists as environmental variables
@@ -54,8 +67,8 @@ class ResourceCmdHelper(object):
 
         # by default, we set template_dir relative to the app_dir
         # this can be over written by the inheriting class
-        if hasattr(self,"app_dir") and self.app_dir:
-            self.template_dir = "{}/_ed_templates".format(self.app_dir)
+        if hasattr(self,"exec_dir") and self.exec_dir:
+            self.template_dir = "{}/_ed_templates".format(self.exec_dir)
         else:
             self.template_dir = None
 
@@ -142,29 +155,29 @@ class ResourceCmdHelper(object):
         #    self.run_share_dir = self.share_dir
 
         # This can be overwritten - either you run from the share directory
-        # or the run_dir + app/working_subdir
+        # or the exec_base_dir + app/app_dir
         # ref 453646
-        self.app_dir = os.path.join(self.share_dir,self.stateful_id)
+        self.exec_dir = os.path.join(self.share_dir,self.stateful_id)
 
     def _set_app_params(self,**kwargs):
 
-        self.working_subdir = kwargs.get("working_subdir")
+        self.app_dir = kwargs.get("app_dir")
 
         self.app_name = kwargs.get("app_name")
         if not self.app_name: return 
 
         # below app_name must be defined
-        # set working_subdir
-        if not self.working_subdir: 
-            self.working_subdir = os.environ.get("{}_DIR".format(self.app_name.upper()),
-                                                 "/var/tmp/{}".format(self.app_name))
+        # set app_dir
+        if not self.app_dir: 
+            self.app_dir = os.environ.get("{}_DIR".format(self.app_name.upper()),
+                                          "/var/tmp/{}".format(self.app_name))
 
-        if self.working_subdir[0] == "/": self.working_subdir = self.working_subdir[1:]
+        if self.app_dir[0] == "/": self.app_dir = self.app_dir[1:]
 
         # ref 453646
-        # overide the app_dir set from _set_stateful_params
+        # overide the exec_dir set from _set_stateful_params
         # e.g. /var/tmp/share/ABC123/var/tmp/ansible
-        self.app_dir = os.path.join(self.run_dir,self.working_subdir)
+        self.exec_dir = os.path.join(self.exec_base_dir,self.app_dir)
 
         # this can be overided by inherited class
         self.shelloutconfig = "elasticdev:::{}::resource_wrapper".format(self.app_name)
@@ -213,8 +226,8 @@ class ResourceCmdHelper(object):
         for _file_stats in template_files:
 
             template_filepath = _file_stats["file"]
-            file_dir = os.path.join(self.app_dir,_file_stats["directory"])
-            file_path = os.path.join(self.app_dir,_file_stats["directory"],_file_stats["filename"].split(".ja2")[0])
+            file_dir = os.path.join(self.exec_dir,_file_stats["directory"])
+            file_path = os.path.join(self.exec_dir,_file_stats["directory"],_file_stats["filename"].split(".ja2")[0])
 
             if not os.path.exists(file_dir): 
                 os.system("mkdir -p {}".format(file_dir))
@@ -332,16 +345,17 @@ class ResourceCmdHelper(object):
         _dirname = os.path.dirname(self.run_share_dir)
         if not os.path.exists(_dirname): cmds.append("mkdir -p {}".format(_dirname))
 
-        if not rsync_args: 
-            rsync_args = "-avug"
-            if exclude_existing: rsync_args = '{} --ignore-existing'.format(rsync_args)
+        if not rsync_args: rsync_args = "-avug"
+        if exclude_existing: rsync_args = '{} --ignore-existing '.format(rsync_args)
+
         #rsync -h -v -r -P -t source target
 
-        self.logger.debug("rsync -avug {}/ {}".format(rsync_args,
-                                                      self.app_dir,
-                                                      self.run_share_dir))
+        cmd = "rsync {} {}/ {}".format(rsync_args,
+                                       self.exec_dir,
+                                       self.run_share_dir))
 
-        cmds.append("rsync -avug {}/ {}".format(self.app_dir,self.run_share_dir))
+        self.logger.debug(cmd)
+        cmds.append(cmd)
 
         for cmd in cmds:
             self.execute(cmd,output_to_json=False,exit_error=True)
