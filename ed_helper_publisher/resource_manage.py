@@ -24,7 +24,6 @@ from ed_helper_publisher.shellouts import execute4
 from ed_helper_publisher.utilities import id_generator
 from ed_helper_publisher.templating import list_template_files
 
-# Testingyoyo
 class MissingEnvironmentVariable(Exception):
     pass
 
