@@ -192,7 +192,7 @@ def generate_random_path(basedir,folder_depth=1,folder_length=16,createdir=False
     returns random folder path with specified parameters
     '''
 
-    current_dir = basedir
+    cwd = basedir
 
     for _ in range(folder_depth):
 
@@ -201,8 +201,8 @@ def generate_random_path(basedir,folder_depth=1,folder_length=16,createdir=False
         else:
             random_dir = id_generator(folder_length)
 
-        current_dir = current_dir+"/"+random_dir
+        cwd = cwd+"/"+random_dir
 
-    if createdir: mkdir(current_dir)
+    if createdir: mkdir(cwd)
 
-    return current_dir,random_dir
+    return cwd,random_dir
