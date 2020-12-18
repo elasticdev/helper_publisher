@@ -136,6 +136,14 @@ class ResourceCmdHelper(object):
         self.docker_image = os.environ.get("DOCKER_EXEC_ENV",
                                            "elasticdev/{}-run-env".format(self.app_name))
 
+    def _create_dir(self,dir_path):
+
+        if os.path.exists(dir_path): return
+
+        cmd = "mkdir -p {}".format(dir_path)
+
+        self.execute(cmd,output_to_json=False,exit_error=True)
+
     def _set_stateful_params(self,**kwargs):
      
         self.share_dir = os.environ.get("SHARE_DIR","/var/tmp/share")
@@ -149,6 +157,7 @@ class ResourceCmdHelper(object):
         if not self.stateful_id: return
 
         self.run_share_dir = os.path.join(self.share_dir,self.stateful_id)
+        self._create_dir(self.run_share_dir)
 
         return
 
@@ -196,6 +205,8 @@ class ResourceCmdHelper(object):
         # e.g. /var/tmp/share/ABC123/var/tmp/ansible
         if self.app_dir:
             self.exec_dir = os.path.join(self.exec_dir,self.app_dir)
+
+        self._create_dir(self.exec_dir)
 
     # referenced and related to: dup dhdskyeucnfhrt2634521 
     def get_env_var(self,variable,default=None,must_exists=None):
