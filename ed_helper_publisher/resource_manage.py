@@ -64,6 +64,7 @@ class ResourceCmdHelper(object):
 
         self._set_stateful_params(**kwargs)
         self._set_app_params(**kwargs)
+        self._set_exec_dir(**kwargs)
 
         # by default, we set template_dir relative to the app_dir
         # this can be over written by the inheriting class
@@ -140,14 +141,18 @@ class ResourceCmdHelper(object):
         self.share_dir = os.environ.get("SHARE_DIR","/var/tmp/share")
         self.stateful_id = os.environ.get("STATEFUL_ID")
         self.stateful_dir = os.environ.get("STATEFUL_DIR")
+        self.run_share_dir = None
 
         if not self.stateful_id and 'stateful_id' in self.must_exists: 
             raise MissingEnvironmentVariable("{} does not exist".format("STATEFUL_ID"))
 
-        if not self.stateful_id: self.stateful_id = id_generator(20)
+        if not self.stateful_id: return
 
-        # run_share_dir
         self.run_share_dir = os.path.join(self.share_dir,self.stateful_id)
+
+        return
+
+        #if not self.stateful_id: self.stateful_id = id_generator(20)
 
         #if self.stateful_id:
         #    self.run_share_dir = os.path.join(self.share_dir,self.stateful_id)
@@ -157,10 +162,11 @@ class ResourceCmdHelper(object):
         # This can be overwritten - either you run from the share directory
         # or the exec_base_dir + app/app_dir
         # ref 453646
-        self.exec_dir = os.path.join(self.share_dir,self.stateful_id)
+        #self.exec_dir = os.path.join(self.share_dir,self.stateful_id)
 
     def _set_app_params(self,**kwargs):
 
+        self.shelloutconfig = None
         self.app_dir = kwargs.get("app_dir")
 
         self.app_name = kwargs.get("app_name")
@@ -174,13 +180,22 @@ class ResourceCmdHelper(object):
 
         if self.app_dir[0] == "/": self.app_dir = self.app_dir[1:]
 
+        # this can be overided by inherited class
+        self.shelloutconfig = "elasticdev:::{}::resource_wrapper".format(self.app_name)
+
+    def _set_exec_dir(self,**kwargs):
+
+        if self.stateful_id:
+            #_exec_dir = os.path.join(self.share_dir,self.stateful_id)
+            self.exec_dir = self.run_share_dir
+        else:
+            self.exec_dir = self.exec_base_dir
+
         # ref 453646
         # overide the exec_dir set from _set_stateful_params
         # e.g. /var/tmp/share/ABC123/var/tmp/ansible
-        self.exec_dir = os.path.join(self.exec_base_dir,self.app_dir)
-
-        # this can be overided by inherited class
-        self.shelloutconfig = "elasticdev:::{}::resource_wrapper".format(self.app_name)
+        if self.app_dir:
+            self.exec_dir = os.path.join(self.exec_dir,self.app_dir)
 
     # referenced and related to: dup dhdskyeucnfhrt2634521 
     def get_env_var(self,variable,default=None,must_exists=None):
