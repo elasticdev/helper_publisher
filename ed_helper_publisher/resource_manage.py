@@ -23,6 +23,7 @@ from ed_helper_publisher.shellouts import execute3
 from ed_helper_publisher.shellouts import execute4
 from ed_helper_publisher.utilities import id_generator
 from ed_helper_publisher.templating import list_template_files
+from ed_helper_publisher.output import convert_ed_output_to_values
 
 class MissingEnvironmentVariable(Exception):
     pass
@@ -75,8 +76,8 @@ class ResourceCmdHelper(object):
 
         self._set_docker_settings(**kwargs)
         self._set_destroy_env_vars(**kwargs)
-
         self._set_os_env_prefix(**kwargs)
+        self._get_docker_env_filepath()
 
         self.output = []
 
@@ -129,7 +130,12 @@ class ResourceCmdHelper(object):
 
     def _set_docker_settings(self,**kwargs):
 
-        self.use_docker = os.environ.get("USE_DOCKER",True)
+        if "USE_DOCKER" in os.environ:
+            self.use_docker = os.environ.get("USE_DOCKER")
+            if self.use_docker in [ "None", "null", None, "none"]:
+                self.use_docker = None
+        else:
+            self.use_docker = True
 
         if not self.app_name: return
 
@@ -151,12 +157,18 @@ class ResourceCmdHelper(object):
         self.stateful_dir = os.environ.get("STATEFUL_DIR")
         self.run_share_dir = None
 
+        self.postscript_path = None
+        self.postscript = None
+        self.creds_dir = None
+
         if not self.stateful_id and 'stateful_id' in self.must_exists: 
             raise MissingEnvironmentVariable("{} does not exist".format("STATEFUL_ID"))
 
         if not self.stateful_id: return
 
         self.run_share_dir = os.path.join(self.share_dir,self.stateful_id)
+        self.creds_dir = os.path.join(self.run_share_dir,".creds")
+
         self._create_dir(self.run_share_dir)
 
         return
@@ -207,6 +219,78 @@ class ResourceCmdHelper(object):
             self.exec_dir = os.path.join(self.exec_dir,self.app_dir)
 
         self._create_dir(self.exec_dir)
+
+    def get_state_info(self):
+
+        if not self.postscript_path:
+            self.logger.warn("post script is not set")
+            return
+
+        if not os.path.exists(self.postscript_path):
+            self.logger.warn("post script {} does not exists".format(self.postscript_path))
+            return 
+
+        os.chdir(self.exec_dir)
+        cmd = [ self.postscript_path ]
+
+        try:
+            output = self.execute(cmd,output_to_json=False,exit_error=True).get("output")
+        except:
+            self.logger.debug("{} failed at terraform dir {}".format(self.postscript_path,self.exec_dir))
+            exit(9)
+
+        values = convert_ed_output_to_values(output)
+        os.chdir(self.cwd)
+
+        return values
+
+    def add_destroy_params(self,resource):
+
+        self.logger.debug("add_destroy_params is to specified by the inherited class")
+
+        return 
+
+    def get_resource_info(self):
+
+        resource = self.get_state_info()
+        if not resource: return 
+
+        if not isinstance(resource,dict) and not isinstance(resource,list):
+            self.logger.warn("resource needs to be a dictionary or list!")
+            exit(9)
+
+        if isinstance(resource,dict): 
+            self.add_resource_tags(resource)
+            try:
+                self.add_destroy_params(resource)
+            except:
+                self.logger.debug("Did not add destroy params")
+
+        if isinstance(resource,list):
+            for _resource in resource:
+
+                self.add_resource_tags(_resource)
+
+                if not _resource.get("main"): continue
+
+                try:
+                    self.add_destroy_params(_resource)
+                except:
+                    self.logger.debug("Did not add destroy params")
+
+        return resource
+
+    def _get_docker_env_filepath(self):
+
+        try:
+            _docker_env_file = self.get_env_var("DOCKER_ENV_FILE",default=".env")
+            self.docker_env_file = os.path.join(self.exec_dir,_docker_env_file)
+        except:
+            self.docker_env_file = None
+
+        #self.docker_env_file = os.path.join(os.getcwd(),_docker_env_file)
+
+        return self.docker_env_file
 
     # referenced and related to: dup dhdskyeucnfhrt2634521 
     def get_env_var(self,variable,default=None,must_exists=None):
@@ -538,6 +622,11 @@ class ResourceCmdHelper(object):
                 self.inputargs[env_var] = os.environ[_var]
             else:
                 self.inputargs[_var] = os.environ[_var]
+
+        if self.use_docker:
+            self.inputargs["use_docker"] = True
+        else:
+            self.inputargs["use_docker"] = None
 
     def check_required_inputargs(self,**kwargs):
 
