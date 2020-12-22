@@ -284,10 +284,11 @@ class ResourceCmdHelper(object):
 
         try:
             _docker_env_file = self.get_env_var("DOCKER_ENV_FILE",default=".env")
-            self.docker_env_file = os.path.join(self.exec_dir,_docker_env_file)
+            self.docker_env_file = os.path.join(self.run_share_dir,_docker_env_file)
         except:
             self.docker_env_file = None
 
+        #self.docker_env_file = os.path.join(self.exec_dir,_docker_env_file)
         #self.docker_env_file = os.path.join(os.getcwd(),_docker_env_file)
 
         return self.docker_env_file
