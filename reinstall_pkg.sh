@@ -1,4 +1,4 @@
-export PYTHON_DIR='/usr/local/lib/python2.7/dist-packages'
+export PYTHON_DIR=${PYTHON_DIR:=/usr/local/lib/python2.7/dist-packages}
 export CURRENT_DIR=`pwd`
 
 export CODE_DIR="ed_helper_publisher"
