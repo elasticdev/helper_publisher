@@ -414,7 +414,7 @@ class ResourceCmdHelper(object):
 
         with open(filepath,"wb") as wfile:
             for _line in _lines:
-                wfile.write(_line)
+                wfile.write(_line.replace('"','').replace("'",""))
                 if not add_return: continue
                 wfile.write("\n")
 
