@@ -14,6 +14,7 @@
 
 import os
 import jinja2
+import base64
 
 from ed_helper_publisher.loggerly import ElasticDevLogger
 from ed_helper_publisher.utilities import print_json
@@ -21,9 +22,9 @@ from ed_helper_publisher.utilities import to_json
 from ed_helper_publisher.utilities import get_hash
 from ed_helper_publisher.shellouts import execute3
 from ed_helper_publisher.shellouts import execute4
-from ed_helper_publisher.utilities import id_generator
 from ed_helper_publisher.templating import list_template_files
 from ed_helper_publisher.output import convert_ed_output_to_values
+#from ed_helper_publisher.utilities import id_generator
 
 class MissingEnvironmentVariable(Exception):
     pass
@@ -395,6 +396,7 @@ class ResourceCmdHelper(object):
         split_char = kwargs.get("split_char")
         add_return = kwargs.get("add_return",True)
         copy_to_share = kwargs.get("copy_to_share")
+        deserialize = kwargs.get("deserialize")
 
         try:
             permission = str(int(kwargs.get("permission")))
@@ -404,6 +406,7 @@ class ResourceCmdHelper(object):
         if not self.inputargs.get(key): return
 
         _value = self.inputargs[key]
+        if deserialize: _value = base64.b64decode(_value)
 
         if split_char is None: 
             _lines = _value
