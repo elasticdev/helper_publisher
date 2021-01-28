@@ -161,15 +161,22 @@ def execute4(cmd,print_error=True,**kwargs):
 
     return results
 
-def execute5(command):
+def execute5(command,exit_error=None):
 
-    return_value = os.system(command)
+    _return = os.system(command)
 
     # Calculate the return value code
 
-    return_value = int(bin(return_value).replace("0b", "").rjust(16, '0')[:8], 2)
+    exitcode = int(bin(_return).replace("0b", "").rjust(16, '0')[:8], 2)
 
-    if return_value == 0: return return_value
+    if exitcode != 0 and exit_error: 
+        raise RuntimeError('The system command\n{}\nexited with return code {}'.format(command,exitcode))
 
-    raise RuntimeError('The system command\n{}\nexited with return code {}'.format(command,return_value))
+    results = {"status":True}
 
+    if exitcode != 0:
+        results = {"status":False}
+
+    results["exitcode"] = exitcode
+
+    return results
